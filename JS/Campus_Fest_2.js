@@ -180,6 +180,18 @@ const AGENDA = [
   }
 ];
 
+/* ===== MENSAJES DE CONTACTO SIMULADOS (Para conectar a MongoDB en Etapa 2) ===== */
+const MENSAJES = [
+  {
+    id: 1,
+    nombre: "Vero Castro",
+    correo: "vcastro@cenfotec.ac.cr",
+    asunto: "Espacio para stand",
+    mensaje: "Hola, me gustaría saber si todavía quedan espacios disponibles para stands de comida en la Plaza Central. ¡Gracias!",
+    fecha: "06 Jul"
+  }
+];
+
 /* ===== ESTADO GLOBAL ===== */
 let modoAdmin = false;
 
@@ -235,27 +247,64 @@ function toggleAdmin() {
   
 }
 
-function toggleAdmin_1() {
+/** Alterna entre vista visitante y vista administrador global */
+function toggleAdmin() {
+  modoAdmin = !modoAdmin;
+  const btn   = document.getElementById('btnAdminToggle');
+  const badge = document.getElementById('badgeAdmin');
+  
+  // Elemento específico de contacto.html (Bandeja de entrada)
+  const panelAdminContacto = document.querySelector('.admin-panel');
 
-    const panelAdmin = document.getElementById("panelAdmin");
-    const formulario = document.querySelector(".form-wrapper");
-    const badge = document.getElementById("badgeAdmin");
-
-    const adminActivo = panelAdmin.style.display === "block";
-
-    if (adminActivo) {
-
-        panelAdmin.style.display = "none";
-        formulario.style.display = "block";
-        badge.style.display = "none";
-
-    } else {
-
-        panelAdmin.style.display = "block";
-        formulario.style.display = "none";
-        badge.style.display = "flex";
-
+  if (modoAdmin) {
+    document.body.classList.add('modo-admin');
+    if (btn) {
+      btn.innerHTML = '<i class="fa-solid fa-user" aria-hidden="true"></i> Vista Visitante';
+      btn.classList.add('admin-activo');
+      btn.setAttribute('aria-pressed', 'true');
     }
+    if (badge) badge.classList.add('visible');
+    
+    // Si estamos en contacto.html, mostrar la bandeja de entrada
+    if (panelAdminContacto) {
+      panelAdminContacto.style.display = 'block';
+    }
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Modo Administrador',
+      text: 'Ahora tenés acceso a los controles de gestión.',
+      confirmButtonColor: '#006AEA',
+      timer: 2000,
+      showConfirmButton: false,
+      toast: true,
+      position: 'top-end'
+    });
+  } else {
+    document.body.classList.remove('modo-admin');
+    if (btn) {
+      btn.innerHTML = '<i class="fa-solid fa-gear" aria-hidden="true"></i> Vista Admin';
+      btn.classList.remove('admin-activo');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+    if (badge) badge.classList.remove('visible');
+    
+    // Si estamos en contacto.html, ocultar la bandeja de entrada
+    if (panelAdminContacto) {
+      panelAdminContacto.style.display = 'none';
+    }
+
+    Swal.fire({
+      icon: 'info',
+      title: 'Vista Visitante',
+      text: 'Volviste a la vista de visitante.',
+      confirmButtonColor: '#006AEA',
+      timer: 2000,
+      showConfirmButton: false,
+      toast: true,
+      position: 'top-end'
+    });
+  }
 }
 
 
@@ -678,6 +727,78 @@ function enviarInscripcion() {
 }
 
 /* =============================================
+   FORMULARIO DE CONTACTO (RF-CONTACTO)
+============================================= */
+
+/** Valida y procesa el envío del formulario de contacto */
+function enviarContacto() {
+  const nombre  = document.getElementById('inpContactoNombre').value.trim();
+  const correo  = document.getElementById('inpContactoCorreo').value.trim();
+  const asunto  = document.getElementById('inpContactoAsunto').value.trim();
+  const mensaje = document.getElementById('inpContactoMensaje').value.trim();
+
+  // IDs de los campos para limpiar estados de error previos
+  const campos = ['inpContactoNombre', 'inpContactoCorreo', 'inpContactoAsunto', 'inpContactoMensaje'];
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('is-invalid');
+  });
+
+  const errores = [];
+  if (!nombre)  { errores.push('Nombre completo'); document.getElementById('inpContactoNombre').classList.add('is-invalid'); }
+  if (!correo || !correo.includes('@') || !correo.includes('.')) {
+    errores.push('Correo electrónico válido');
+    if (document.getElementById('inpContactoCorreo')) document.getElementById('inpContactoCorreo').classList.add('is-invalid');
+  }
+  if (!asunto)  { errores.push('Asunto'); document.getElementById('inpContactoAsunto').classList.add('is-invalid'); }
+  if (!mensaje) { errores.push('Mensaje'); document.getElementById('inpContactoMensaje').classList.add('is-invalid'); }
+
+  // Si hay errores, mostrar alerta de advertencia
+  if (errores.length > 0) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Campos incompletos',
+      html: `Por favor completá los campos obligatorios:<br><ul style="text-align:left; margin-top:0.5rem;">${errores.map(e => `<li>${e}</li>`).join('')}</ul>`,
+      confirmButtonColor: '#006AEA',
+      confirmButtonText: 'Entendido'
+    });
+    return;
+  }
+
+  // Simular el guardado del objeto (para la futura persistencia en Mongo)
+  const nuevoMensaje = {
+    id: MENSAJES.length + 1,
+    nombre,
+    correo,
+    asunto,
+    mensaje,
+    fecha: "07 Jul"
+  };
+  
+  MENSAJES.push(nuevoMensaje);
+
+  // Mostrar mensaje de éxito con SweetAlert2
+  Swal.fire({
+    icon: 'success',
+    title: '¡Mensaje Enviado!',
+    html: `<p>Muchas gracias, <strong>${nombre}</strong>.</p>
+           <p style="margin-top:0.5rem;">Hemos recibido tu consulta sobre <em>"${asunto}"</em>.</p>
+           <p style="margin-top:0.5rem; font-size:0.9rem; color:#666;">
+             Te responderemos muy pronto al correo <strong>${correo}</strong>.
+           </p>`,
+    confirmButtonColor: '#006AEA',
+    confirmButtonText: 'Excelente'
+  }).then((result) => {
+    // Opcional: Limpiar el formulario tras el envío exitoso
+    if (result.isConfirmed) {
+      campos.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+    }
+  });
+}
+/* =============================================
    PANEL ADMINISTRADOR — ACCIONES (RF-ADM)
 ============================================= */
 
@@ -843,6 +964,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderDestacadas();
   renderAgenda();
   poblarSelectActividades();
+
+  // === ESTO ES LO QUE ESTAMOS AGREGANDO ===
+  // Asegurar estado inicial del panel de administración en contacto.html
+  const panelAdminContacto = document.querySelector('.admin-panel');
+  if (panelAdminContacto) {
+    panelAdminContacto.style.display = modoAdmin ? 'block' : 'none';
+  }
+  // ========================================
 
   // Resaltar el enlace de navegación activo según el archivo actual
   const pagina = window.location.pathname.split('/').pop() || 'inicio.html';
