@@ -16,7 +16,7 @@ app.use(express.json());
 
 // --- CONEXIÓN A MONGODB ---
 // Usamos la variable que definimos en el archivo .env
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect("mongodb://127.0.0.1:27017/CampusFest")
 .then(() => {
     console.log("¡Conexión exitosa a la base de datos local!");
     
