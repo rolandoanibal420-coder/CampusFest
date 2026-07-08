@@ -1,40 +1,40 @@
+require('dotenv').config(); // Carga las variables desde el archivo .env
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 
-// Importar las rutas desde la carpeta 'routes'
+// Importar rutas
 const actividadRoutes = require('./routes/actividadRoutes');
-const contactoRoutes = require('./routes/contactoRoutes');
+const contactoRoutes = require('./routes/contactoRoutes'); // Verifica que el nombre del archivo sea correcto
 const inscripcionRoutes = require('./routes/inscripcionRoutes');
 
 const app = express();
 
 // Middlewares
-app.use(cors()); // Permite peticiones desde tu frontend
-app.use(express.json()); // Permite recibir JSON
+app.use(cors());
+app.use(express.json());
 
-// --- CONFIGURACIÓN DE CONEXIÓN A MONGODB ATLAS ---
-const uri = "mongodb+srv://raguilarn:Sheyla2025@cluster0.jcgyccv.mongodb.net/CampusFest?retryWrites=true&w=majority&appName=Cluster0";
-
-mongoose.connect(uri)
+// --- CONEXIÓN A MONGODB ---
+// Usamos la variable que definimos en el archivo .env
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
-    console.log("¡Conexión exitosa a MongoDB Atlas!");
+    console.log("¡Conexión exitosa a la base de datos local!");
     
-    // Iniciar servidor solo después de conectar a la BD
-    app.listen(3000, () => {
-        console.log("Servidor corriendo en http://localhost:3000");
+    // Iniciar servidor
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log("Servidor corriendo en http://localhost:" + PORT);
     });
 })
 .catch((error) => {
     console.error("Error conectando a MongoDB:", error);
 });
 
-// Definición de rutas base (usando los archivos de la carpeta 'routes')
+// Definición de rutas base
 app.use('/api/actividades', actividadRoutes);
 app.use('/api/contactos', contactoRoutes);
 app.use('/api/inscripciones', inscripcionRoutes);
 
-// Ruta de prueba inicial
 app.get('/', (req, res) => {
     res.send('Backend de CampusFest funcionando correctamente');
 });
