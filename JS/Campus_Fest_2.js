@@ -1,10 +1,10 @@
 /* =============================================
-   CAMPUSFEST 2026 — Campus_Fest.js
+   CAMPUSFEST 2026 — Campus_Fest_2.js
    Universidad Cenfotec
    Páginas: Inicio, Agenda, Inscripción
 ============================================= */
 
-/* ===== DATOS SIMULADOS (Etapa 1 — se reemplazan por API en Etapa 2) ===== */
+/* ===== DATOS SIMULADOS ===== */
 
 const ACTIVIDADES = [
   {
@@ -139,56 +139,44 @@ const AGENDA = [
   {
     dia: "Lunes 14 de Julio",
     eventos: [
-      { hora: "08:00", nombre: "Hackathon de IA — Inicio", lugar: "Lab A-201", categoria: "tecnologica", estado: "disponible" },
-      { hora: "10:00", nombre: "Exposición de Arte Digital", lugar: "Galería B", categoria: "artistica", estado: "disponible" },
-      { hora: "14:00", nombre: "Ceremonia de Apertura", lugar: "Auditorio Principal", categoria: "cultural", estado: "disponible" },
-      { hora: "19:00", nombre: "Inauguración de Stands", lugar: "Plaza Central", categoria: "recreativa", estado: "disponible" }
+      { hora: "08:00", nombre: "Hackathon de IA — Inicio",     lugar: "Lab A-201",         categoria: "tecnologica", estado: "disponible" },
+      { hora: "10:00", nombre: "Exposición de Arte Digital",   lugar: "Galería B",          categoria: "artistica",   estado: "disponible" },
+      { hora: "14:00", nombre: "Ceremonia de Apertura",        lugar: "Auditorio Principal",categoria: "cultural",    estado: "disponible" },
+      { hora: "19:00", nombre: "Inauguración de Stands",       lugar: "Plaza Central",      categoria: "recreativa",  estado: "disponible" }
     ]
   },
   {
     dia: "Martes 15 de Julio",
     eventos: [
-      { hora: "09:00", nombre: "Escape Room Tecnológico", lugar: "Sala C-105", categoria: "recreativa", estado: "disponible" },
-      { hora: "11:00", nombre: "Festival Gastronómico", lugar: "Plaza Central", categoria: "gastronomica", estado: "disponible" },
-      { hora: "16:00", nombre: "Hackathon de IA — Presentaciones", lugar: "Lab A-201", categoria: "tecnologica", estado: "lleno" }
+      { hora: "09:00", nombre: "Escape Room Tecnológico",              lugar: "Sala C-105",         categoria: "recreativa",  estado: "disponible" },
+      { hora: "11:00", nombre: "Festival Gastronómico",                lugar: "Plaza Central",      categoria: "gastronomica",estado: "disponible" },
+      { hora: "16:00", nombre: "Hackathon de IA — Presentaciones",     lugar: "Lab A-201",          categoria: "tecnologica", estado: "lleno"      }
     ]
   },
   {
     dia: "Miércoles 16 de Julio",
     eventos: [
-      { hora: "10:00", nombre: "Taller de Robótica", lugar: "Lab A-105", categoria: "tecnologica", estado: "disponible" },
-      { hora: "14:00", nombre: "Torneo de Fútbol 5", lugar: "Cancha C", categoria: "deportiva", estado: "lleno" },
-      { hora: "17:00", nombre: "Charlas de Emprendimiento", lugar: "Sala B-201", categoria: "cultural", estado: "disponible" }
+      { hora: "10:00", nombre: "Taller de Robótica",         lugar: "Lab A-105",  categoria: "tecnologica", estado: "disponible" },
+      { hora: "14:00", nombre: "Torneo de Fútbol 5",         lugar: "Cancha C",   categoria: "deportiva",   estado: "lleno"      },
+      { hora: "17:00", nombre: "Charlas de Emprendimiento",  lugar: "Sala B-201", categoria: "cultural",    estado: "disponible" }
     ]
   },
   {
     dia: "Jueves 17 de Julio",
     eventos: [
-      { hora: "10:00", nombre: "Workshop UX/UI", lugar: "Lab Diseño", categoria: "tecnologica", estado: "disponible" },
-      { hora: "15:00", nombre: "Maratón de Danza", lugar: "Patio Central", categoria: "cultural", estado: "disponible" },
-      { hora: "19:00", nombre: "Noche de Teatro", lugar: "Auditorio Principal", categoria: "cultural", estado: "disponible" }
+      { hora: "10:00", nombre: "Workshop UX/UI",    lugar: "Lab Diseño",         categoria: "tecnologica", estado: "disponible" },
+      { hora: "15:00", nombre: "Maratón de Danza",  lugar: "Patio Central",      categoria: "cultural",    estado: "disponible" },
+      { hora: "19:00", nombre: "Noche de Teatro",   lugar: "Auditorio Principal",categoria: "cultural",    estado: "disponible" }
     ]
   },
   {
     dia: "Viernes 18 de Julio",
     eventos: [
-      { hora: "10:00", nombre: "Feria de Proyectos Finales", lugar: "Pabellón A", categoria: "tecnologica", estado: "disponible" },
-      { hora: "14:00", nombre: "Premiaciones Hackathon", lugar: "Auditorio Principal", categoria: "tecnologica", estado: "cancelado" },
-      { hora: "18:00", nombre: "Jam de Música en Vivo", lugar: "Terraza Norte", categoria: "artistica", estado: "disponible" },
-      { hora: "20:00", nombre: "Clausura CampusFest 2026", lugar: "Plaza Central", categoria: "cultural", estado: "disponible" }
+      { hora: "10:00", nombre: "Feria de Proyectos Finales", lugar: "Pabellón A",          categoria: "tecnologica", estado: "disponible" },
+      { hora: "14:00", nombre: "Premiaciones Hackathon",     lugar: "Auditorio Principal", categoria: "tecnologica", estado: "cancelado"  },
+      { hora: "18:00", nombre: "Jam de Música en Vivo",      lugar: "Terraza Norte",       categoria: "artistica",   estado: "disponible" },
+      { hora: "20:00", nombre: "Clausura CampusFest 2026",   lugar: "Plaza Central",       categoria: "cultural",    estado: "disponible" }
     ]
-  }
-];
-
-/* ===== MENSAJES DE CONTACTO SIMULADOS (Para conectar a MongoDB en Etapa 2) ===== */
-const MENSAJES = [
-  {
-    id: 1,
-    nombre: "Vero Castro",
-    correo: "vcastro@cenfotec.ac.cr",
-    asunto: "Espacio para stand",
-    mensaje: "Hola, me gustaría saber si todavía quedan espacios disponibles para stands de comida en la Plaza Central. ¡Gracias!",
-    fecha: "06 Jul"
   }
 ];
 
@@ -196,19 +184,41 @@ const MENSAJES = [
 let modoAdmin = false;
 
 /* =============================================
-   MODO ADMINISTRADOR
-   (RF-ADM-01/02/03: alternar vista, mostrar
-   controles adicionales y gestión de cupos)
+   MODO OSCURO
+   Controla la clase CSS en <body> mediante el
+   switch de la navbar (RF-ACC-07)
+============================================= */
+
+/**
+ * Inicializa el switch de modo claro/oscuro y
+ * aplica la preferencia guardada en localStorage.
+ */
+function initModoOscuro() {
+  const switchEl = document.getElementById('switchModo');
+  if (!switchEl) return;
+
+  // Restaurar preferencia guardada
+  if (localStorage.getItem('modoOscuro') === 'true') {
+    document.body.classList.add('modo-oscuro');
+    switchEl.checked = true;
+  }
+
+  switchEl.addEventListener('change', () => {
+    const activo = switchEl.checked;
+    document.body.classList.toggle('modo-oscuro', activo);
+    localStorage.setItem('modoOscuro', activo);
+  });
+}
+
+/* =============================================
+   MODO ADMINISTRADOR (RF-ADM-01/02/03)
 ============================================= */
 
 /** Alterna entre vista visitante y vista administrador */
 function toggleAdmin() {
-
-  
   modoAdmin = !modoAdmin;
   const btn   = document.getElementById('btnAdminToggle');
   const badge = document.getElementById('badgeAdmin');
-  
 
   if (modoAdmin) {
     document.body.classList.add('modo-admin');
@@ -242,71 +252,8 @@ function toggleAdmin() {
       toast: true,
       position: 'top-end'
     });
-    
-  }
-  
-}
-
-/** Alterna entre vista visitante y vista administrador global */
-function toggleAdmin() {
-  modoAdmin = !modoAdmin;
-  const btn   = document.getElementById('btnAdminToggle');
-  const badge = document.getElementById('badgeAdmin');
-  
-  // Elemento específico de contacto.html (Bandeja de entrada)
-  const panelAdminContacto = document.querySelector('.admin-panel');
-
-  if (modoAdmin) {
-    document.body.classList.add('modo-admin');
-    if (btn) {
-      btn.innerHTML = '<i class="fa-solid fa-user" aria-hidden="true"></i> Vista Visitante';
-      btn.classList.add('admin-activo');
-      btn.setAttribute('aria-pressed', 'true');
-    }
-    if (badge) badge.classList.add('visible');
-    
-    // Si estamos en contacto.html, mostrar la bandeja de entrada
-    if (panelAdminContacto) {
-      panelAdminContacto.style.display = 'block';
-    }
-
-    Swal.fire({
-      icon: 'success',
-      title: 'Modo Administrador',
-      text: 'Ahora tenés acceso a los controles de gestión.',
-      confirmButtonColor: '#006AEA',
-      timer: 2000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end'
-    });
-  } else {
-    document.body.classList.remove('modo-admin');
-    if (btn) {
-      btn.innerHTML = '<i class="fa-solid fa-gear" aria-hidden="true"></i> Vista Admin';
-      btn.classList.remove('admin-activo');
-      btn.setAttribute('aria-pressed', 'false');
-    }
-    if (badge) badge.classList.remove('visible');
-    
-    // Si estamos en contacto.html, ocultar la bandeja de entrada
-    if (panelAdminContacto) {
-      panelAdminContacto.style.display = 'none';
-    }
-
-    Swal.fire({
-      icon: 'info',
-      title: 'Vista Visitante',
-      text: 'Volviste a la vista de visitante.',
-      confirmButtonColor: '#006AEA',
-      timer: 2000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end'
-    });
   }
 }
-
 
 /* =============================================
    UTILIDADES — CUPOS Y CATEGORÍAS
@@ -325,11 +272,11 @@ function getCupoInfo(act) {
   let estadoClase = 'estado-disponible';
 
   if (pct >= 100) {
-    clase = 'cupo-lleno';
+    clase       = 'cupo-lleno';
     estadoLabel = 'Lleno';
     estadoClase = 'estado-lleno';
   } else if (pct >= 80) {
-    clase = 'cupo-alerta';
+    clase       = 'cupo-alerta';
     estadoLabel = 'Casi lleno';
     estadoClase = 'estado-lleno';
   }
@@ -356,8 +303,7 @@ const ICONOS_CATEGORIA = {
 };
 
 /**
- * Genera el HTML de un tag de categoría con ícono (RF-ACC-02: ícono +
- * texto para no depender solo del color, compatible con daltonismo).
+ * Genera el HTML de un tag de categoría con ícono.
  * @param {string} cat - Clave de categoría
  * @returns {string} HTML del tag
  */
@@ -385,8 +331,8 @@ function getCategoriaTag(cat) {
  * @returns {string} HTML de la tarjeta
  */
 function renderTarjetaActividad(act) {
-  const ci    = getCupoInfo(act);
-  const libre = act.cupoMax - act.cupoActual;
+  const ci        = getCupoInfo(act);
+  const libre     = act.cupoMax - act.cupoActual;
   const alertaBaja = ci.pct >= 80 && ci.pct < 100;
 
   return `
@@ -402,7 +348,9 @@ function renderTarjetaActividad(act) {
             <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${act.lugar}</span>
           </div>
           ${alertaBaja
-            ? `<div class="alerta-baja-disponibilidad" role="alert"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ¡Quedan solo ${libre} cupos!</div>`
+            ? `<div class="alerta-baja-disponibilidad" role="alert">
+                 <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ¡Quedan solo ${libre} cupos!
+               </div>`
             : ''}
           <div class="cupo-barra" aria-label="Disponibilidad: ${act.cupoActual} de ${act.cupoMax} cupos ocupados">
             <div class="cupo-progreso ${ci.clase}" style="width:${Math.min(ci.pct, 100)}%"></div>
@@ -436,7 +384,7 @@ function renderTarjetaActividad(act) {
     </div>`;
 }
 
-/** Renderiza las 3 actividades destacadas en la página de inicio (RF-FE-01.6) */
+/** Renderiza las 3 actividades destacadas en la página de inicio */
 function renderDestacadas() {
   const grid = document.getElementById('actividadesDestacadas');
   if (!grid) return;
@@ -449,7 +397,7 @@ function renderDestacadas() {
 ============================================= */
 
 /**
- * Abre el modal con el detalle de una actividad (RF-FE-03).
+ * Abre el modal con el detalle de una actividad.
  * @param {number} id - ID de la actividad
  */
 function abrirDetalle(id) {
@@ -501,9 +449,12 @@ function abrirDetalle(id) {
       <div class="modal-campo-valor">${act.requisitos}</div>
     </div>
     ${ci.pct >= 80 && ci.pct < 100
-      ? `<div class="alerta-cupo" role="alert"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ¡Quedan solo ${libre} cupos disponibles!</div>`
+      ? `<div class="alerta-cupo" role="alert">
+           <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ¡Quedan solo ${libre} cupos disponibles!
+         </div>`
       : ''}
-    <button type="button" class="btn ${libre > 0 ? 'btn-primario' : 'btn-acento'} w-100 justify-content-center"
+    <button type="button"
+            class="btn ${libre > 0 ? 'btn-primario' : 'btn-acento'} w-100 justify-content-center"
             data-bs-dismiss="modal"
             onclick="irAInscripcionDesdeModal(${act.id})"
             aria-label="${libre > 0 ? 'Inscribirse en ' + act.nombre : 'Unirse a lista de espera de ' + act.nombre}">
@@ -514,8 +465,7 @@ function abrirDetalle(id) {
 }
 
 /**
- * Guarda el ID de la actividad y redirige a inscripcion.html con
- * el query param correspondiente para preseleccionarla (RF-FE-03.2).
+ * Redirige a inscripcion.html con el ID de actividad preseleccionado.
  * @param {number} id - ID de la actividad
  */
 function irAInscripcionDesdeModal(id) {
@@ -523,7 +473,7 @@ function irAInscripcionDesdeModal(id) {
 }
 
 /* =============================================
-   RENDER — AGENDA (RF-05)
+   RENDER — AGENDA
 ============================================= */
 
 const ESTADO_CLASES = {
@@ -588,10 +538,10 @@ function renderAgenda() {
 }
 
 /* =============================================
-   FORMULARIO DE INSCRIPCIÓN (RF-04, RF-CUPOS)
+   FORMULARIO DE INSCRIPCIÓN
 ============================================= */
 
-/** Puebla el select de actividades con todas las disponibles */
+/** Puebla el select de actividades */
 function poblarSelectActividades() {
   const sel = document.getElementById('inpActividad');
   if (!sel) return;
@@ -606,12 +556,12 @@ function poblarSelectActividades() {
       : `${a.nombre} — ${libre} cupos`;
 
     const opt = document.createElement('option');
-    opt.value = a.id;
+    opt.value       = a.id;
     opt.textContent = label;
     sel.appendChild(opt);
   });
 
-  // Preseleccionar actividad si viene desde el detalle (?actividad=ID)
+  // Preseleccionar actividad si viene por query param (?actividad=ID)
   const params = new URLSearchParams(window.location.search);
   const actId  = params.get('actividad');
   if (actId && ACTIVIDADES.some(a => a.id == actId)) {
@@ -621,8 +571,8 @@ function poblarSelectActividades() {
 }
 
 /**
- * Muestra una alerta de cupos según la actividad seleccionada (RF-CUPOS-01/02).
- * @param {string|number} id - ID de la actividad seleccionada
+ * Muestra alerta de cupos según la actividad seleccionada.
+ * @param {string|number} id - ID de la actividad
  */
 function verificarCupoActividad(id) {
   const alertaEl = document.getElementById('alertaCupo');
@@ -641,23 +591,23 @@ function verificarCupoActividad(id) {
   const libre = act.cupoMax - act.cupoActual;
 
   if (ci.pct >= 100) {
-    textoEl.textContent = `"${act.nombre}" no tiene cupos. Tu registro quedará en lista de espera.`;
-    alertaEl.style.display = 'flex';
+    textoEl.textContent       = `"${act.nombre}" no tiene cupos. Tu registro quedará en lista de espera.`;
+    alertaEl.style.display    = 'flex';
     alertaEl.style.background = 'linear-gradient(135deg, #fff3cd, #ffeaa7)';
-    alertaEl.style.borderColor = '#ffc63e';
-    alertaEl.style.color = '#7a4800';
+    alertaEl.style.borderColor= '#ffc63e';
+    alertaEl.style.color      = '#7a4800';
   } else if (ci.pct >= 80) {
-    textoEl.textContent = `¡Solo quedan ${libre} cupos para "${act.nombre}"! Inscribite pronto.`;
-    alertaEl.style.display = 'flex';
+    textoEl.textContent       = `¡Solo quedan ${libre} cupos para "${act.nombre}"! Inscribite pronto.`;
+    alertaEl.style.display    = 'flex';
     alertaEl.style.background = 'linear-gradient(135deg, #d4edda, #c3e6cb)';
-    alertaEl.style.borderColor = '#4aa147';
-    alertaEl.style.color = '#1a5a1a';
+    alertaEl.style.borderColor= '#4aa147';
+    alertaEl.style.color      = '#1a5a1a';
   } else {
     alertaEl.style.display = 'none';
   }
 }
 
-/** Valida y procesa el envío del formulario de inscripción (RF-FE-04) */
+/** Valida y procesa el formulario de inscripción */
 function enviarInscripcion() {
   const nombre  = document.getElementById('inpNombre').value.trim();
   const ident   = document.getElementById('inpIdentificacion').value.trim();
@@ -671,15 +621,15 @@ function enviarInscripcion() {
     .forEach(id => document.getElementById(id).classList.remove('is-invalid'));
 
   const errores = [];
-  if (!nombre)  { errores.push('Nombre completo'); document.getElementById('inpNombre').classList.add('is-invalid'); }
-  if (!ident)   { errores.push('Identificación'); document.getElementById('inpIdentificacion').classList.add('is-invalid'); }
+  if (!nombre)  { errores.push('Nombre completo');         document.getElementById('inpNombre').classList.add('is-invalid'); }
+  if (!ident)   { errores.push('Identificación');          document.getElementById('inpIdentificacion').classList.add('is-invalid'); }
   if (!correo || !correo.includes('@') || !correo.includes('.')) {
     errores.push('Correo electrónico válido');
     document.getElementById('inpCorreo').classList.add('is-invalid');
   }
-  if (!tel)     { errores.push('Teléfono'); document.getElementById('inpTelefono').classList.add('is-invalid'); }
-  if (!carrera) { errores.push('Carrera o grupo'); document.getElementById('inpCarrera').classList.add('is-invalid'); }
-  if (!actId)   { errores.push('Actividad seleccionada'); document.getElementById('inpActividad').classList.add('is-invalid'); }
+  if (!tel)     { errores.push('Teléfono');                document.getElementById('inpTelefono').classList.add('is-invalid'); }
+  if (!carrera) { errores.push('Carrera o grupo');         document.getElementById('inpCarrera').classList.add('is-invalid'); }
+  if (!actId)   { errores.push('Actividad seleccionada');  document.getElementById('inpActividad').classList.add('is-invalid'); }
 
   if (errores.length > 0) {
     Swal.fire({
@@ -727,79 +677,7 @@ function enviarInscripcion() {
 }
 
 /* =============================================
-   FORMULARIO DE CONTACTO (RF-CONTACTO)
-============================================= */
-
-/** Valida y procesa el envío del formulario de contacto */
-function enviarContacto() {
-  const nombre  = document.getElementById('inpContactoNombre').value.trim();
-  const correo  = document.getElementById('inpContactoCorreo').value.trim();
-  const asunto  = document.getElementById('inpContactoAsunto').value.trim();
-  const mensaje = document.getElementById('inpContactoMensaje').value.trim();
-
-  // IDs de los campos para limpiar estados de error previos
-  const campos = ['inpContactoNombre', 'inpContactoCorreo', 'inpContactoAsunto', 'inpContactoMensaje'];
-  campos.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.classList.remove('is-invalid');
-  });
-
-  const errores = [];
-  if (!nombre)  { errores.push('Nombre completo'); document.getElementById('inpContactoNombre').classList.add('is-invalid'); }
-  if (!correo || !correo.includes('@') || !correo.includes('.')) {
-    errores.push('Correo electrónico válido');
-    if (document.getElementById('inpContactoCorreo')) document.getElementById('inpContactoCorreo').classList.add('is-invalid');
-  }
-  if (!asunto)  { errores.push('Asunto'); document.getElementById('inpContactoAsunto').classList.add('is-invalid'); }
-  if (!mensaje) { errores.push('Mensaje'); document.getElementById('inpContactoMensaje').classList.add('is-invalid'); }
-
-  // Si hay errores, mostrar alerta de advertencia
-  if (errores.length > 0) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Campos incompletos',
-      html: `Por favor completá los campos obligatorios:<br><ul style="text-align:left; margin-top:0.5rem;">${errores.map(e => `<li>${e}</li>`).join('')}</ul>`,
-      confirmButtonColor: '#006AEA',
-      confirmButtonText: 'Entendido'
-    });
-    return;
-  }
-
-  // Simular el guardado del objeto (para la futura persistencia en Mongo)
-  const nuevoMensaje = {
-    id: MENSAJES.length + 1,
-    nombre,
-    correo,
-    asunto,
-    mensaje,
-    fecha: "07 Jul"
-  };
-  
-  MENSAJES.push(nuevoMensaje);
-
-  // Mostrar mensaje de éxito con SweetAlert2
-  Swal.fire({
-    icon: 'success',
-    title: '¡Mensaje Enviado!',
-    html: `<p>Muchas gracias, <strong>${nombre}</strong>.</p>
-           <p style="margin-top:0.5rem;">Hemos recibido tu consulta sobre <em>"${asunto}"</em>.</p>
-           <p style="margin-top:0.5rem; font-size:0.9rem; color:#666;">
-             Te responderemos muy pronto al correo <strong>${correo}</strong>.
-           </p>`,
-    confirmButtonColor: '#006AEA',
-    confirmButtonText: 'Excelente'
-  }).then((result) => {
-    // Opcional: Limpiar el formulario tras el envío exitoso
-    if (result.isConfirmed) {
-      campos.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-    }
-  });
-}
-/* =============================================
-   PANEL ADMINISTRADOR — ACCIONES (RF-ADM)
+   PANEL ADMINISTRADOR — ACCIONES
 ============================================= */
 
 /**
@@ -828,9 +706,9 @@ function cancelarActividad(id) {
     text: `¿Cancelar "${act.nombre}"?`,
     showCancelButton: true,
     confirmButtonColor: '#d2232a',
-    cancelButtonColor: '#7c7b75',
+    cancelButtonColor:  '#7c7b75',
     confirmButtonText: 'Sí, cancelar',
-    cancelButtonText: 'No'
+    cancelButtonText:  'No'
   }).then(r => {
     if (r.isConfirmed) {
       Swal.fire({ icon: 'success', title: 'Actividad cancelada', confirmButtonColor: '#006AEA' });
@@ -852,7 +730,7 @@ function editarEvento(nombre) {
 }
 
 /**
- * Abre el modal admin para agregar un evento a la agenda (RF-FE-05.4).
+ * Abre el modal admin para agregar un evento a la agenda.
  */
 function mostrarFormAgenda() {
   const opcionesCategoria = Object.entries(NOMBRES_CATEGORIA)
@@ -882,16 +760,16 @@ function mostrarFormAgenda() {
       <label class="form-label">Categoría</label>
       <select class="form-select"><option value="">Seleccioná...</option>${opcionesCategoria}</select>
     </div>
-    <button type="button" class="btn btn-primario w-100 justify-content-center" onclick="guardadoExitoso('modalAdmin')">
+    <button type="button" class="btn btn-primario w-100 justify-content-center"
+            onclick="guardadoExitoso('modalAdmin')">
       <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Agregar a Agenda
     </button>`;
 
-  const modalEl = document.getElementById('modalAdmin');
-  bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
 }
 
 /**
- * Abre el modal admin para registrar una nueva actividad (RF-ADM-02/03).
+ * Abre el modal admin para registrar una nueva actividad.
  */
 function mostrarFormActividad() {
   const opcionesCategoria = Object.entries(NOMBRES_CATEGORIA)
@@ -928,21 +806,20 @@ function mostrarFormActividad() {
       <label class="form-label">Descripción</label>
       <textarea class="form-control" rows="3" placeholder="Descripción de la actividad..."></textarea>
     </div>
-    <button type="button" class="btn btn-primario w-100 justify-content-center" onclick="guardadoExitoso('modalAdmin')">
+    <button type="button" class="btn btn-primario w-100 justify-content-center"
+            onclick="guardadoExitoso('modalAdmin')">
       <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar Actividad
     </button>`;
 
-  const modalEl = document.getElementById('modalAdmin');
-  bootstrap.Modal.getOrCreateInstance(modalEl).show();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
 }
 
 /**
- * Cierra el modal admin indicado y muestra confirmación de guardado.
+ * Cierra el modal indicado y muestra confirmación de guardado.
  * @param {string} modalId - ID del modal a cerrar
  */
 function guardadoExitoso(modalId) {
-  const modalEl = document.getElementById(modalId);
-  bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+  bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId)).hide();
   Swal.fire({
     icon: 'success',
     title: 'Guardado',
@@ -956,24 +833,15 @@ function guardadoExitoso(modalId) {
 }
 
 /* =============================================
-   INICIALIZACIÓN POR PÁGINA
-   Cada página llama solo a las funciones que
-   correspondan a sus elementos presentes en el DOM.
+   INICIALIZACIÓN
 ============================================= */
 document.addEventListener('DOMContentLoaded', () => {
+  initModoOscuro();
   renderDestacadas();
   renderAgenda();
   poblarSelectActividades();
 
-  // === ESTO ES LO QUE ESTAMOS AGREGANDO ===
-  // Asegurar estado inicial del panel de administración en contacto.html
-  const panelAdminContacto = document.querySelector('.admin-panel');
-  if (panelAdminContacto) {
-    panelAdminContacto.style.display = modoAdmin ? 'block' : 'none';
-  }
-  // ========================================
-
-  // Resaltar el enlace de navegación activo según el archivo actual
+  // Resaltar enlace de navegación activo
   const pagina = window.location.pathname.split('/').pop() || 'inicio.html';
   document.querySelectorAll('.nav-principal .nav-link').forEach(link => {
     if (link.getAttribute('href') === pagina) {
@@ -982,3 +850,264 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+/* =============================================
+   AUTH — Login / Registro / Sesión
+   Persistencia: localStorage
+   Compartido por todas las páginas
+============================================= */
+
+const DOMINIO_ADMIN = '@ucenfotec.ac.cr';
+
+/* ── Helpers de localStorage ── */
+function getUsuarios() {
+  return JSON.parse(localStorage.getItem('cf_usuarios') || '[]');
+}
+function guardarUsuarios(arr) {
+  localStorage.setItem('cf_usuarios', JSON.stringify(arr));
+}
+function getSesion() {
+  return JSON.parse(localStorage.getItem('cf_sesion') || 'null');
+}
+function guardarSesion(u) {
+  localStorage.setItem('cf_sesion', JSON.stringify(u));
+}
+function cerrarSesionStorage() {
+  localStorage.removeItem('cf_sesion');
+}
+
+/* ── Determina si un correo es institucional ── */
+function esCorreoAdmin(correo) {
+  return correo.trim().toLowerCase().endsWith(DOMINIO_ADMIN);
+}
+
+/* ── Actualiza UI según el estado de sesión ── */
+function aplicarEstadoSesion() {
+  const sesion = getSesion();
+  const btn    = document.getElementById('btnSesion');
+  const badge  = document.getElementById('badgeAdmin');
+  if (!btn) return;
+
+  if (!sesion) {
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Iniciar sesión';
+    btn.classList.remove('sesion-activa');
+    btn.onclick = abrirModalAuth;
+    document.body.classList.remove('modo-admin');
+    if (badge) badge.classList.remove('visible');
+    return;
+  }
+
+  const esAdmin = esCorreoAdmin(sesion.correo);
+  const primerNombre = sesion.nombre.split(' ')[0];
+
+  btn.innerHTML = `<i class="fa-solid fa-circle-user" aria-hidden="true"></i> ${primerNombre} &nbsp;<small style="opacity:.7;font-size:.72rem;">(Cerrar sesión)</small>`;
+  btn.classList.add('sesion-activa');
+  btn.onclick = confirmarCerrarSesion;
+
+  if (esAdmin) {
+    document.body.classList.add('modo-admin');
+    if (badge) badge.classList.add('visible');
+  } else {
+    document.body.classList.remove('modo-admin');
+    if (badge) badge.classList.remove('visible');
+  }
+}
+
+/* ── Abrir modal de auth ── */
+function abrirModalAuth() {
+  cambiarTab('login');
+  const el = document.getElementById('modalAuth');
+  if (el) bootstrap.Modal.getOrCreateInstance(el).show();
+}
+
+/* ── Cambiar entre tabs ── */
+function cambiarTab(cual) {
+  ['login', 'registro'].forEach(t => {
+    const tab   = document.getElementById('tab'   + capitalizar(t));
+    const panel = document.getElementById('panel' + capitalizar(t));
+    if (!tab || !panel) return;
+    const activo = (t === cual);
+    tab.classList.toggle('activo', activo);
+    panel.classList.toggle('activo', activo);
+    tab.setAttribute('aria-selected', activo);
+  });
+  limpiarErroresAuth();
+}
+
+function capitalizar(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+/* ── Hints dinámicos de dominio ── */
+function mostrarHintRegistro(val) {
+  const hint = document.getElementById('regDominioHint');
+  if (!hint) return;
+  if (!val) { hint.textContent = ''; return; }
+  if (esCorreoAdmin(val)) {
+    hint.className = 'dominio-hint dominio-admin';
+    hint.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Correo institucional — rol <strong>Administrador</strong>';
+  } else {
+    hint.className = 'dominio-hint dominio-no';
+    hint.innerHTML = '<i class="fa-solid fa-circle-info"></i> Correo no institucional — rol <strong>Visitante</strong>';
+  }
+}
+
+function mostrarHintLogin(val) {
+  const hint = document.getElementById('loginDominioHint');
+  if (!hint) return;
+  if (!val) { hint.textContent = ''; return; }
+  if (esCorreoAdmin(val)) {
+    hint.className = 'dominio-hint dominio-admin';
+    hint.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Acceso de <strong>Administrador</strong>';
+  } else {
+    hint.className = 'dominio-hint dominio-no';
+    hint.innerHTML = '<i class="fa-solid fa-circle-info"></i> Acceso de <strong>Visitante</strong>';
+  }
+}
+
+/* ── Limpiar errores ── */
+function limpiarErroresAuth() {
+  document.querySelectorAll('#modalAuth .is-invalid')
+    .forEach(el => el.classList.remove('is-invalid'));
+}
+
+function marcarInvalido(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.add('is-invalid');
+}
+
+/* ── REGISTRO ── */
+function procesarRegistro() {
+  limpiarErroresAuth();
+  const nombre  = document.getElementById('regNombre').value.trim();
+  const cedula  = document.getElementById('regCedula').value.trim();
+  const tel     = document.getElementById('regTelefono').value.trim();
+  const carrera = document.getElementById('regCarrera').value.trim();
+  const correo  = document.getElementById('regCorreo').value.trim().toLowerCase();
+
+  let ok = true;
+  if (!nombre)  { marcarInvalido('regNombre');   ok = false; }
+  if (!cedula)  { marcarInvalido('regCedula');   ok = false; }
+  if (!tel)     { marcarInvalido('regTelefono'); ok = false; }
+  if (!carrera) { marcarInvalido('regCarrera');  ok = false; }
+  if (!correo || !correo.includes('@') || !correo.includes('.')) {
+    marcarInvalido('regCorreo'); ok = false;
+  }
+
+  if (!ok) {
+    Swal.fire({
+      icon: 'warning', title: 'Campos incompletos',
+      text: 'Completá todos los campos obligatorios.',
+      confirmButtonColor: '#006AEA'
+    });
+    return;
+  }
+
+  const usuarios  = getUsuarios();
+  const duplicado = usuarios.find(u => u.cedula === cedula || u.correo === correo);
+
+  if (duplicado) {
+    const campo = duplicado.correo === correo ? 'ese correo' : 'esa cédula';
+    Swal.fire({
+      icon: 'error', title: 'Cuenta existente',
+      text: `Ya existe una cuenta con ${campo}. Iniciá sesión.`,
+      confirmButtonColor: '#006AEA'
+    }).then(() => cambiarTab('login'));
+    return;
+  }
+
+  const rol = esCorreoAdmin(correo) ? 'admin' : 'visitante';
+  const nuevoUsuario = { nombre, cedula, tel, carrera, correo, rol };
+  usuarios.push(nuevoUsuario);
+  guardarUsuarios(usuarios);
+  guardarSesion(nuevoUsuario);
+
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAuth')).hide();
+  aplicarEstadoSesion();
+
+  Swal.fire({
+    icon: 'success',
+    title: rol === 'admin' ? '¡Bienvenido, Administrador!' : '¡Registro exitoso!',
+    html: `<p>Hola, <strong>${nombre}</strong>.</p>
+           <p style="margin-top:.5rem;">Rol asignado: <strong>${rol === 'admin' ? 'Administrador' : 'Visitante'}</strong></p>`,
+    confirmButtonColor: '#006AEA',
+    timer: 3000,
+    timerProgressBar: true
+  });
+}
+
+/* ── LOGIN ── */
+function procesarLogin() {
+  limpiarErroresAuth();
+  const cedula = document.getElementById('loginCedula').value.trim();
+  const correo = document.getElementById('loginCorreo').value.trim().toLowerCase();
+
+  let ok = true;
+  if (!cedula) { marcarInvalido('loginCedula');  ok = false; }
+  if (!correo || !correo.includes('@')) { marcarInvalido('loginCorreo'); ok = false; }
+
+  if (!ok) {
+    Swal.fire({
+      icon: 'warning', title: 'Campos incompletos',
+      text: 'Ingresá tu cédula y correo para continuar.',
+      confirmButtonColor: '#006AEA'
+    });
+    return;
+  }
+
+  const usuarios = getUsuarios();
+  const usuario  = usuarios.find(u => u.cedula === cedula && u.correo === correo);
+
+  if (!usuario) {
+    Swal.fire({
+      icon: 'error', title: 'Credenciales incorrectas',
+      text: 'No encontramos una cuenta con esa cédula y correo. ¿Ya te registraste?',
+      confirmButtonColor: '#006AEA'
+    });
+    return;
+  }
+
+  usuario.rol = esCorreoAdmin(correo) ? 'admin' : 'visitante';
+  guardarSesion(usuario);
+
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAuth')).hide();
+  aplicarEstadoSesion();
+
+  const esAdmin = usuario.rol === 'admin';
+  Swal.fire({
+    icon: 'success',
+    title: esAdmin ? '¡Bienvenido, Administrador!' : '¡Bienvenido!',
+    html: `<p>Hola de nuevo, <strong>${usuario.nombre.split(' ')[0]}</strong>.</p>
+           <p style="margin-top:.5rem; font-size:.9rem; color:#666;">
+             Sesión iniciada como <strong>${esAdmin ? 'Administrador' : 'Visitante'}</strong>
+           </p>`,
+    confirmButtonColor: '#006AEA',
+    timer: 2500,
+    timerProgressBar: true
+  });
+}
+
+/* ── CERRAR SESIÓN ── */
+function confirmarCerrarSesion() {
+  Swal.fire({
+    icon: 'question', title: 'Cerrar sesión',
+    text: '¿Querés cerrar tu sesión actual?',
+    showCancelButton: true,
+    confirmButtonColor: '#d2232a',
+    cancelButtonColor:  '#7c7b75',
+    confirmButtonText: 'Sí, salir',
+    cancelButtonText:  'Cancelar'
+  }).then(r => {
+    if (r.isConfirmed) {
+      cerrarSesionStorage();
+      aplicarEstadoSesion();
+      Swal.fire({
+        icon: 'info', title: 'Sesión cerrada',
+        text: 'Hasta pronto.',
+        confirmButtonColor: '#006AEA',
+        timer: 1800,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
+    }
+  });
+}
