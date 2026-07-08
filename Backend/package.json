@@ -1,0 +1,26 @@
+{
+  "name": "campusfest",
+  "version": "1.0.0",
+  "description": "<<<<<<< Updated upstream\r #1. Descripción General del Sistema\r   CampusFest es un sistema web para la gestión integral del festival estudiantil anual de la Universidad Cenfotec. El sistema permite publicar actividades culturales, deportivas, tecnológicas, artísticas, gastronómicas y recreativas; gestionar inscripciones de participantes; administrar stands y grupos; y mostrar la agenda general del evento.\r   El sistema reemplaza el proceso manual actual (hojas de cálculo, WhatsApp, formularios externos) con una solución web centralizada, accesible, y alineada con la identidad de marca de la Universidad Cenfotec.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rolandoanibal420-coder/CampusFest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rolandoanibal420-coder/CampusFest/issues"
+  },
+  "homepage": "https://github.com/rolandoanibal420-coder/CampusFest#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mongoose": "^9.7.4"
+  }
+}
