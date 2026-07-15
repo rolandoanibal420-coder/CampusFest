@@ -1111,3 +1111,46 @@ function confirmarCerrarSesion() {
     }
   });
 }
+
+
+
+async function procesarContacto(event) {
+    event.preventDefault();
+    const form = document.getElementById('formContacto');
+    
+    // Validación nativa de HTML5/Bootstrap
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+    }
+
+    const datosContacto = {
+        nombre: document.getElementById("txtNombreContacto").value,
+        correo: document.getElementById("txtCorreoContacto").value,
+        asunto: document.getElementById("txtAsunto").value,
+        mensaje: document.getElementById("txtMensaje").value
+    };
+
+    try {
+        const response = await fetch("http://localhost:3000/api/contactos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(datosContacto)
+        });
+
+        if (response.ok) {
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'Tu mensaje fue enviado y guardado correctamente.',
+                icon: 'success'
+            });
+            form.reset();
+            form.classList.remove('was-validated');
+        } else {
+            const errorData = await response.json();
+            throw new Error(errorData.detalle || "Error al guardar");
+        }
+    } catch (error) {
+        Swal.fire({ title: 'Error', text: error.message, icon: 'error' });
+    }
+}

@@ -198,28 +198,5 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="JS/Campus_Fest_2.js"></script>
-
-<script>
-  function procesarContacto(event) {
-    event.preventDefault();
-    const form = document.getElementById('formContacto');
-    
-    if (!form.checkValidity()) {
-      form.classList.add('was-validated');
-      return;
-    }
-
-    Swal.fire({
-      title: '¡Mensaje Enviado!',
-      text: 'Tu consulta ha sido registrada. Nos comunicaremos contigo a la brevedad.',
-      icon: 'success',
-      confirmButtonColor: 'var(--color-acento)',
-      confirmButtonText: 'Entendido'
-    });
-    
-    form.reset();
-    form.classList.remove('was-validated');
-  }
-</script>
 </body>
 </html>
