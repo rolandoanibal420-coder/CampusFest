@@ -20,7 +20,7 @@ console.log("Archivo .env cargado:", require('dotenv').config());
 console.log("URL de conexión que estoy intentando usar:", process.env.MONGODB_URI);
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
-    console.log("¡Conexión exitosa a la base de datos local!");
+    console.log("¡Conexión exitosa a la base de datos en la nube!");
     
     // Iniciar servidor
     const PORT = process.env.PORT || 3000;
