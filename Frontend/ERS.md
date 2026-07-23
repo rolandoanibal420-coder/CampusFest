@@ -95,3 +95,52 @@ Esta tabla vincula cada requerimiento funcional con su respectivo identificador 
 
 Para la estructura del sistema CampusFest se han modelado dos flujos de navegación independientes según el rol asignado, garantizando que la experiencia pública del visitante y el panel de control del administrador mantengan una jerarquía lógica de tres niveles estrictos (Nodo Raíz ➔ Páginas/Módulos ➔ Componentes/Acciones).
 
+### Diagrama de arquitectura (capas):
+El diagrama de capas describe el flujo: el cliente (Vista) envía peticiones Fetch en formato JSON al servidor (Controlador), el cual aplica las reglas de negocio y se comunica con la base de datos (Modelo) mediante Mongoose.
+
+Se implementará una arquitectura cliente-servidor de tres capas, siguiendo el patrón Modelo‑Vista‑Controlador (MVC) para asegurar la separación de responsabilidades:
+Capa de presentación (Vista): interfaces HTML5, CSS y JavaScript del lado del cliente, construidas con Bootstrap 5 para garantizar un diseño responsive y accesible. Incluye las páginas de inicio, catálogo de actividades, detalle de actividad, formulario de inscripción, agenda, stands, contacto, y las pantallas de administración (gestión de actividades, stands, participantes y resultados).
+Capa de controlador (Controlador): implementada en Node.js, gestiona las peticiones HTTP, orquesta las validaciones, aplica las reglas de negocio (inscripción hasta 36 horas antes del evento, control de cupos, lista de espera, asignación de rol admin/visitante por dominio de correo institucional) y comunica los modelos con las vistas mediante respuestas JSON.
+Capa de datos (Modelo): gestiona la persistencia utilizando MongoDB Atlas como base de datos. Los modelos, definidos con Mongoose, representan las entidades Actividad, Usuario, Inscripción, Stand,  y Contacto.
+
+
+### Patrones arquitectónicos empleados. 
+Cliente-servidor: separación entre el frontend (cliente, en el navegador) y el backend (servidor Node.js), comunicados mediante peticiones HTTP.
+MVC (Modelo-Vista-Controlador): separa la interfaz (Vista), la lógica de negocio (Controlador) y el acceso a datos (Modelo), facilitando el mantenimiento y las pruebas independientes de cada capa.
+API RESTful: el controlador expone recursos (actividades, inscripciones, stands, usuarios y consultas) mediante rutas HTTP estándar (GET, POST, PUT, DELETE) que devuelven JSON, permitiendo que el cliente sea completamente independiente del servidor.
+Repositorio / ODM (Mongoose): los modelos actúan como una capa de abstracción entre la lógica de negocio y MongoDB Atlas, encapsulando las operaciones de acceso a datos (consultas, creación, actualización).
+
+### Comunicación cliente-servidor con Fetch API
+La comunicación entre el cliente y el servidor se realizará mediante peticiones Fetch a una API RESTful que retornará datos en formato JSON, permitiendo una experiencia dinámica sin recargas completas de página.
+En CampusFest, realiza cada operación  por una petición Fetch hacia un endpoint del backend. Cada endpoint corresponde a un recurso del modelo (actividades, inscripciones, stands, usuarios).
+
+
+
+
+Por qué es obligatorio usar Fetch
+Fetch reemplaza la recarga completa de página (como ocurría con formularios HTML tradicionales) por peticiones asíncronas: el navegador envía la petición, espera la respuesta JSON del servidor Express, y actualiza solo la parte de la página que corresponde (por ejemplo, la lista de actividades o un mensaje de SweetAlert2), sin refrescar todo el documento. Esto es lo que permite que CampusFest se sienta como una aplicación dinámica, aun siendo un conjunto de páginas HTML servidas de forma tradicional.
+
+### Estructura del Sistema
+Para garantizar un desarrollo ordenado y modular, se adoptó una arquitectura basada en el patrón Modelo-Vista-Controlador (MVC). Esta estructura facilita la separación de responsabilidades y la mantenibilidad del código a largo plazo:
+/controllers: Gestiona la lógica de negocio y las respuestas del sistema.
+/models: Define la estructura de datos para nuestra base de datos MongoDB.
+/routes: Configura las rutas (endpoints) que exponen la API hacia el frontend.
+server.js: Actúa como el núcleo del sistema, inicializando el servidor y configurando la conexión a la base de datos.
+.env: Asegura que las credenciales y configuraciones sensibles se manejen fuera del código fuente, cumpliendo con estándares de seguridad.
+
+### API REST y Matriz de Trazabilidad
+Como parte de la gestión técnica, se diseñó una API RESTful que permite la comunicación asíncrona entre los componentes. A continuación, se presenta la matriz de trazabilidad que vincula los requerimientos funcionales del cliente con nuestra implementación técnica.
+Nota técnica sobre los métodos utilizados:
+GET: Implementado para las funciones de consulta y visualización de datos (como el catálogo de actividades), garantizando una experiencia de usuario rápida y eficiente.
+POST: Implementado para el envío y almacenamiento de nuevos datos en la base de datos (como el formulario de inscripciones), asegurando la integridad de la información recibida desde el cliente.
+
+### Seguridad y Tecnologías Utilizadas
+La seguridad del sistema se abordó mediante la implementación de prácticas robustas de desarrollo:
+### Manejo de Errores: Se integró control de excepciones para prevenir fallos críticos y evitar la exposición de información interna del servidor hacia el usuario final.
+### Tecnologías: El sistema se apoya en Node.js por su alto rendimiento y escalabilidad, junto con MongoDB como base de datos NoSQL, lo cual permite gestionar la naturaleza dinámica de los datos del CampusFest de forma nativa en formato JSON.
+
+### Inconvenientes y Soluciones
+Durante el desarrollo de esta fase, se presentaron desafíos técnicos que fueron resueltos exitosamente para asegurar la continuidad del proyecto:
+Gestión de variables de entorno: Se presentaron errores al intentar acceder a los parámetros de conexión. Solución: Se implementó dotenv para centralizar la configuración, lo que permitió una conexión segura y estable a la base de datos.
+Configuración de rutas: Se detectaron conflictos en la importación de archivos. Solución: Se estandarizó la nomenclatura y la jerarquía de directorios, facilitando la escalabilidad del sistema ante futuros requerimientos.
+
