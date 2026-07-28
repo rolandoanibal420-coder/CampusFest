@@ -1,887 +1,67 @@
 /* =============================================
    CAMPUSFEST 2026 — Campus_Fest_2.js
    Universidad Cenfotec
-   Páginas: Inicio, Agenda, Inscripción
+   Backend: Express + MongoDB Atlas
+   Auth:  POST /usuarios/registro | POST /usuarios/login
+   Admin: GET  /usuarios | DELETE /usuarios/:id | PUT /usuarios/:id
 ============================================= */
 
-/* ===== DATOS SIMULADOS ===== */
+const API_URL = 'http://localhost:3000';
 
+/* =============================================
+   DATOS LOCALES — Actividades y Agenda
+   (no están en MongoDB, se mantienen en JS)
+============================================= */
 const ACTIVIDADES = [
-  {
-    id: 1,
-    nombre: "Hackathon de IA",
-    categoria: "tecnologica",
-    icono: "fa-laptop-code",
-    fecha: "14 Jul",
-    hora: "08:00",
-    lugar: "Lab A-201",
-    cupoMax: 30,
-    cupoActual: 28,
-    descripcion: "Competencia intensiva de desarrollo de soluciones usando Inteligencia Artificial. Equipos de 3-4 personas resolverán retos reales propuestos por empresas tecnológicas.",
-    requisitos: "Conocimientos en Python o JavaScript. Traer laptop.",
-    destacada: true
-  },
-  {
-    id: 2,
-    nombre: "Festival Gastronómico",
-    categoria: "gastronomica",
-    icono: "fa-utensils",
-    fecha: "15 Jul",
-    hora: "11:00",
-    lugar: "Plaza Central",
-    cupoMax: 200,
-    cupoActual: 120,
-    descripcion: "Degustación de platillos internacionales preparados por estudiantes y grupos gastronómicos del campus. Más de 20 puestos de comida.",
-    requisitos: "Entrada libre. Consumo según disponibilidad.",
-    destacada: true
-  },
-  {
-    id: 3,
-    nombre: "Exposición de Arte Digital",
-    categoria: "artistica",
-    icono: "fa-palette",
-    fecha: "14 Jul",
-    hora: "10:00",
-    lugar: "Galería B",
-    cupoMax: 80,
-    cupoActual: 65,
-    descripcion: "Muestra de obras digitales creadas por estudiantes: ilustración, diseño UX/UI, motion graphics y fotografía editorial.",
-    requisitos: "No requiere inscripción para visitar. Registro para exponer.",
-    destacada: true
-  },
-  {
-    id: 4,
-    nombre: "Torneo de Fútbol 5",
-    categoria: "deportiva",
-    icono: "fa-futbol",
-    fecha: "16 Jul",
-    hora: "14:00",
-    lugar: "Cancha C",
-    cupoMax: 60,
-    cupoActual: 60,
-    descripcion: "Torneo relámpago de fútbol sala entre equipos de diferentes carreras. Fase de grupos y eliminación directa.",
-    requisitos: "Equipos de 5 jugadores + 2 suplentes. Ropa deportiva obligatoria.",
-    destacada: false
-  },
-  {
-    id: 5,
-    nombre: "Noche de Teatro",
-    categoria: "cultural",
-    icono: "fa-masks-theater",
-    fecha: "17 Jul",
-    hora: "19:00",
-    lugar: "Auditorio Principal",
-    cupoMax: 120,
-    cupoActual: 95,
-    descripcion: "Presentación de obras breves y performance de teatro improvisado a cargo del club de teatro de la universidad.",
-    requisitos: "Entrada libre hasta agotar aforo.",
-    destacada: false
-  },
-  {
-    id: 6,
-    nombre: "Escape Room Tecnológico",
-    categoria: "recreativa",
-    icono: "fa-puzzle-piece",
-    fecha: "15 Jul",
-    hora: "09:00",
-    lugar: "Sala C-105",
-    cupoMax: 20,
-    cupoActual: 16,
-    descripcion: "Experiencia de escape room temática en tecnología y ciencias de la computación. Resolvé acertijos y desafíos de programación.",
-    requisitos: "Grupos de máximo 4 personas. Reserva previa obligatoria.",
-    destacada: false
-  },
-  {
-    id: 7,
-    nombre: "Taller de Robótica",
-    categoria: "tecnologica",
-    icono: "fa-robot",
-    fecha: "16 Jul",
-    hora: "10:00",
-    lugar: "Lab A-105",
-    cupoMax: 25,
-    cupoActual: 20,
-    descripcion: "Taller práctico de construcción y programación de robots con Arduino. Incluye competencia de obstáculos.",
-    requisitos: "Sin experiencia previa requerida. Materiales incluidos.",
-    destacada: false
-  },
-  {
-    id: 8,
-    nombre: "Jam de Música en Vivo",
-    categoria: "artistica",
-    icono: "fa-guitar",
-    fecha: "18 Jul",
-    hora: "18:00",
-    lugar: "Terraza Norte",
-    cupoMax: 150,
-    cupoActual: 40,
-    descripcion: "Sesión abierta de música en vivo con bandas y artistas de la comunidad universitaria. Varios géneros musicales.",
-    requisitos: "Entrada libre. Para tocar: registrar banda antes del 10 de julio.",
-    destacada: false
-  },
-  {
-    id: 9,
-    nombre: "Maratón de Danza",
-    categoria: "cultural",
-    icono: "fa-music",
-    fecha: "17 Jul",
-    hora: "15:00",
-    lugar: "Patio Central",
-    cupoMax: 50,
-    cupoActual: 35,
-    descripcion: "Competencia de baile urbano, tropical y folclórico. Categorías individual y grupal.",
-    requisitos: "Ropa cómoda. Inscripción individual o grupal (máx 6 personas).",
-    destacada: false
-  }
+  { id:1, nombre:"Hackathon de IA",          categoria:"tecnologica",  icono:"fa-laptop-code",  fecha:"14 Jul", hora:"08:00", lugar:"Lab A-201",         cupoMax:30,  cupoActual:28,  descripcion:"Competencia intensiva de desarrollo de soluciones usando Inteligencia Artificial. Equipos de 3-4 personas resolverán retos reales propuestos por empresas tecnológicas.", requisitos:"Conocimientos en Python o JavaScript. Traer laptop.",                          destacada:true  },
+  { id:2, nombre:"Festival Gastronómico",    categoria:"gastronomica", icono:"fa-utensils",      fecha:"15 Jul", hora:"11:00", lugar:"Plaza Central",      cupoMax:200, cupoActual:120, descripcion:"Degustación de platillos internacionales preparados por estudiantes y grupos gastronómicos del campus. Más de 20 puestos de comida.",                                 requisitos:"Entrada libre. Consumo según disponibilidad.",                              destacada:true  },
+  { id:3, nombre:"Exposición de Arte Digital",categoria:"artistica",   icono:"fa-palette",       fecha:"14 Jul", hora:"10:00", lugar:"Galería B",           cupoMax:80,  cupoActual:65,  descripcion:"Muestra de obras digitales creadas por estudiantes: ilustración, diseño UX/UI, motion graphics y fotografía editorial.",                                               requisitos:"No requiere inscripción para visitar. Registro para exponer.",              destacada:true  },
+  { id:4, nombre:"Torneo de Fútbol 5",       categoria:"deportiva",    icono:"fa-futbol",        fecha:"16 Jul", hora:"14:00", lugar:"Cancha C",            cupoMax:60,  cupoActual:60,  descripcion:"Torneo relámpago de fútbol sala entre equipos de diferentes carreras.",                                                                                               requisitos:"Equipos de 5 jugadores + 2 suplentes. Ropa deportiva obligatoria.",        destacada:false },
+  { id:5, nombre:"Noche de Teatro",          categoria:"cultural",     icono:"fa-masks-theater", fecha:"17 Jul", hora:"19:00", lugar:"Auditorio Principal", cupoMax:120, cupoActual:95,  descripcion:"Presentación de obras breves y performance de teatro improvisado.",                                                                                                    requisitos:"Entrada libre hasta agotar aforo.",                                         destacada:false },
+  { id:6, nombre:"Escape Room Tecnológico",  categoria:"recreativa",   icono:"fa-puzzle-piece",  fecha:"15 Jul", hora:"09:00", lugar:"Sala C-105",          cupoMax:20,  cupoActual:16,  descripcion:"Experiencia de escape room temática en tecnología y ciencias de la computación.",                                                                                      requisitos:"Grupos de máximo 4 personas. Reserva previa obligatoria.",                  destacada:false },
+  { id:7, nombre:"Taller de Robótica",       categoria:"tecnologica",  icono:"fa-robot",         fecha:"16 Jul", hora:"10:00", lugar:"Lab A-105",           cupoMax:25,  cupoActual:20,  descripcion:"Taller práctico de construcción y programación de robots con Arduino.",                                                                                                 requisitos:"Sin experiencia previa requerida. Materiales incluidos.",                   destacada:false },
+  { id:8, nombre:"Jam de Música en Vivo",    categoria:"artistica",    icono:"fa-guitar",        fecha:"18 Jul", hora:"18:00", lugar:"Terraza Norte",       cupoMax:150, cupoActual:40,  descripcion:"Sesión abierta de música en vivo con bandas y artistas de la comunidad universitaria.",                                                                                 requisitos:"Entrada libre. Para tocar: registrar banda antes del 10 de julio.",         destacada:false },
+  { id:9, nombre:"Maratón de Danza",         categoria:"cultural",     icono:"fa-music",         fecha:"17 Jul", hora:"15:00", lugar:"Patio Central",       cupoMax:50,  cupoActual:35,  descripcion:"Competencia de baile urbano, tropical y folclórico. Categorías individual y grupal.",                                                                                   requisitos:"Ropa cómoda. Inscripción individual o grupal (máx 6 personas).",            destacada:false }
 ];
 
 const AGENDA = [
-  {
-    dia: "Lunes 14 de Julio",
-    eventos: [
-      { hora: "08:00", nombre: "Hackathon de IA — Inicio",     lugar: "Lab A-201",         categoria: "tecnologica", estado: "disponible" },
-      { hora: "10:00", nombre: "Exposición de Arte Digital",   lugar: "Galería B",          categoria: "artistica",   estado: "disponible" },
-      { hora: "14:00", nombre: "Ceremonia de Apertura",        lugar: "Auditorio Principal",categoria: "cultural",    estado: "disponible" },
-      { hora: "19:00", nombre: "Inauguración de Stands",       lugar: "Plaza Central",      categoria: "recreativa",  estado: "disponible" }
-    ]
-  },
-  {
-    dia: "Martes 15 de Julio",
-    eventos: [
-      { hora: "09:00", nombre: "Escape Room Tecnológico",              lugar: "Sala C-105",         categoria: "recreativa",  estado: "disponible" },
-      { hora: "11:00", nombre: "Festival Gastronómico",                lugar: "Plaza Central",      categoria: "gastronomica",estado: "disponible" },
-      { hora: "16:00", nombre: "Hackathon de IA — Presentaciones",     lugar: "Lab A-201",          categoria: "tecnologica", estado: "lleno"      }
-    ]
-  },
-  {
-    dia: "Miércoles 16 de Julio",
-    eventos: [
-      { hora: "10:00", nombre: "Taller de Robótica",         lugar: "Lab A-105",  categoria: "tecnologica", estado: "disponible" },
-      { hora: "14:00", nombre: "Torneo de Fútbol 5",         lugar: "Cancha C",   categoria: "deportiva",   estado: "lleno"      },
-      { hora: "17:00", nombre: "Charlas de Emprendimiento",  lugar: "Sala B-201", categoria: "cultural",    estado: "disponible" }
-    ]
-  },
-  {
-    dia: "Jueves 17 de Julio",
-    eventos: [
-      { hora: "10:00", nombre: "Workshop UX/UI",    lugar: "Lab Diseño",         categoria: "tecnologica", estado: "disponible" },
-      { hora: "15:00", nombre: "Maratón de Danza",  lugar: "Patio Central",      categoria: "cultural",    estado: "disponible" },
-      { hora: "19:00", nombre: "Noche de Teatro",   lugar: "Auditorio Principal",categoria: "cultural",    estado: "disponible" }
-    ]
-  },
-  {
-    dia: "Viernes 18 de Julio",
-    eventos: [
-      { hora: "10:00", nombre: "Feria de Proyectos Finales", lugar: "Pabellón A",          categoria: "tecnologica", estado: "disponible" },
-      { hora: "14:00", nombre: "Premiaciones Hackathon",     lugar: "Auditorio Principal", categoria: "tecnologica", estado: "cancelado"  },
-      { hora: "18:00", nombre: "Jam de Música en Vivo",      lugar: "Terraza Norte",       categoria: "artistica",   estado: "disponible" },
-      { hora: "20:00", nombre: "Clausura CampusFest 2026",   lugar: "Plaza Central",       categoria: "cultural",    estado: "disponible" }
-    ]
-  }
+  { dia:"Lunes 14 de Julio",     eventos:[ {hora:"08:00",nombre:"Hackathon de IA — Inicio",          lugar:"Lab A-201",          categoria:"tecnologica", estado:"disponible"}, {hora:"10:00",nombre:"Exposición de Arte Digital",    lugar:"Galería B",          categoria:"artistica",   estado:"disponible"}, {hora:"14:00",nombre:"Ceremonia de Apertura",         lugar:"Auditorio Principal",categoria:"cultural",    estado:"disponible"}, {hora:"19:00",nombre:"Inauguración de Stands",        lugar:"Plaza Central",      categoria:"recreativa",  estado:"disponible"} ] },
+  { dia:"Martes 15 de Julio",    eventos:[ {hora:"09:00",nombre:"Escape Room Tecnológico",            lugar:"Sala C-105",         categoria:"recreativa",  estado:"disponible"}, {hora:"11:00",nombre:"Festival Gastronómico",         lugar:"Plaza Central",      categoria:"gastronomica",estado:"disponible"}, {hora:"16:00",nombre:"Hackathon de IA — Presentaciones",lugar:"Lab A-201",       categoria:"tecnologica", estado:"lleno"     } ] },
+  { dia:"Miércoles 16 de Julio", eventos:[ {hora:"10:00",nombre:"Taller de Robótica",                lugar:"Lab A-105",          categoria:"tecnologica", estado:"disponible"}, {hora:"14:00",nombre:"Torneo de Fútbol 5",            lugar:"Cancha C",           categoria:"deportiva",   estado:"lleno"     }, {hora:"17:00",nombre:"Charlas de Emprendimiento",    lugar:"Sala B-201",         categoria:"cultural",    estado:"disponible"} ] },
+  { dia:"Jueves 17 de Julio",    eventos:[ {hora:"10:00",nombre:"Workshop UX/UI",                    lugar:"Lab Diseño",         categoria:"tecnologica", estado:"disponible"}, {hora:"15:00",nombre:"Maratón de Danza",              lugar:"Patio Central",      categoria:"cultural",    estado:"disponible"}, {hora:"19:00",nombre:"Noche de Teatro",              lugar:"Auditorio Principal",categoria:"cultural",    estado:"disponible"} ] },
+  { dia:"Viernes 18 de Julio",   eventos:[ {hora:"10:00",nombre:"Feria de Proyectos Finales",        lugar:"Pabellón A",         categoria:"tecnologica", estado:"disponible"}, {hora:"14:00",nombre:"Premiaciones Hackathon",        lugar:"Auditorio Principal",categoria:"tecnologica", estado:"cancelado"  }, {hora:"18:00",nombre:"Jam de Música en Vivo",        lugar:"Terraza Norte",      categoria:"artistica",   estado:"disponible"}, {hora:"20:00",nombre:"Clausura CampusFest 2026",     lugar:"Plaza Central",      categoria:"cultural",    estado:"disponible"} ] }
 ];
 
-/* ===== ESTADO GLOBAL ===== */
-let modoAdmin = false;
+/* =============================================
+   SESIÓN LOCAL
+============================================= */
+const DOMINIO_ADMIN = '@ucenfotec.ac.cr';
+
+function getSesion()           { return JSON.parse(localStorage.getItem('cf_sesion') || 'null'); }
+function guardarSesion(u)      { localStorage.setItem('cf_sesion', JSON.stringify(u)); }
+function cerrarSesionStorage() { localStorage.removeItem('cf_sesion'); }
+function esCorreoAdmin(c)      { return c.trim().toLowerCase().endsWith(DOMINIO_ADMIN); }
 
 /* =============================================
    MODO OSCURO
-   Controla la clase CSS en <body> mediante el
-   switch de la navbar (RF-ACC-07)
 ============================================= */
-
-/**
- * Inicializa el switch de modo claro/oscuro y
- * aplica la preferencia guardada en localStorage.
- */
 function initModoOscuro() {
-  const switchEl = document.getElementById('switchModo');
-  if (!switchEl) return;
-
-  // Restaurar preferencia guardada
+  const sw = document.getElementById('switchModo');
+  if (!sw) return;
   if (localStorage.getItem('modoOscuro') === 'true') {
     document.body.classList.add('modo-oscuro');
-    switchEl.checked = true;
+    sw.checked = true;
   }
-
-  switchEl.addEventListener('change', () => {
-    const activo = switchEl.checked;
-    document.body.classList.toggle('modo-oscuro', activo);
-    localStorage.setItem('modoOscuro', activo);
+  sw.addEventListener('change', () => {
+    const on = sw.checked;
+    document.body.classList.toggle('modo-oscuro', on);
+    localStorage.setItem('modoOscuro', on);
   });
 }
 
 /* =============================================
-   MODO ADMINISTRADOR (RF-ADM-01/02/03)
+   ESTADO DE SESIÓN — navbar + vistas
 ============================================= */
-
-/** Alterna entre vista visitante y vista administrador */
-function toggleAdmin() {
-  modoAdmin = !modoAdmin;
-  const btn   = document.getElementById('btnAdminToggle');
-  const badge = document.getElementById('badgeAdmin');
-
-  if (modoAdmin) {
-    document.body.classList.add('modo-admin');
-    btn.innerHTML = '<i class="fa-solid fa-user" aria-hidden="true"></i> Vista Visitante';
-    btn.classList.add('admin-activo');
-    btn.setAttribute('aria-pressed', 'true');
-    badge.classList.add('visible');
-    Swal.fire({
-      icon: 'success',
-      title: 'Modo Administrador',
-      text: 'Ahora tenés acceso a los controles de gestión.',
-      confirmButtonColor: '#006AEA',
-      timer: 2000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end'
-    });
-  } else {
-    document.body.classList.remove('modo-admin');
-    btn.innerHTML = '<i class="fa-solid fa-gear" aria-hidden="true"></i> Vista Admin';
-    btn.classList.remove('admin-activo');
-    btn.setAttribute('aria-pressed', 'false');
-    badge.classList.remove('visible');
-    Swal.fire({
-      icon: 'info',
-      title: 'Vista Visitante',
-      text: 'Volviste a la vista de visitante.',
-      confirmButtonColor: '#006AEA',
-      timer: 2000,
-      showConfirmButton: false,
-      toast: true,
-      position: 'top-end'
-    });
-  }
-}
-
-/* =============================================
-   UTILIDADES — CUPOS Y CATEGORÍAS
-============================================= */
-
-/**
- * Calcula el estado de cupos de una actividad.
- * @param {Object} act - Objeto actividad
- * @returns {Object} Porcentaje, cupos libres, clases CSS y etiquetas
- */
-function getCupoInfo(act) {
-  const pct   = (act.cupoActual / act.cupoMax) * 100;
-  const libre = act.cupoMax - act.cupoActual;
-  let clase       = 'cupo-ok';
-  let estadoLabel = 'Disponible';
-  let estadoClase = 'estado-disponible';
-
-  if (pct >= 100) {
-    clase       = 'cupo-lleno';
-    estadoLabel = 'Lleno';
-    estadoClase = 'estado-lleno';
-  } else if (pct >= 80) {
-    clase       = 'cupo-alerta';
-    estadoLabel = 'Casi lleno';
-    estadoClase = 'estado-lleno';
-  }
-
-  return { pct, libre, clase, estadoLabel, estadoClase };
-}
-
-const NOMBRES_CATEGORIA = {
-  cultural:     'Cultural',
-  deportiva:    'Deportiva',
-  tecnologica:  'Tecnológica',
-  artistica:    'Artística',
-  gastronomica: 'Gastronómica',
-  recreativa:   'Recreativa'
-};
-
-const ICONOS_CATEGORIA = {
-  cultural:     'fa-masks-theater',
-  deportiva:    'fa-futbol',
-  tecnologica:  'fa-laptop-code',
-  artistica:    'fa-palette',
-  gastronomica: 'fa-utensils',
-  recreativa:   'fa-gamepad'
-};
-
-/**
- * Genera el HTML de un tag de categoría con ícono.
- * @param {string} cat - Clave de categoría
- * @returns {string} HTML del tag
- */
-function getCategoriaTag(cat) {
-  const clases = {
-    cultural:     'tag-cultural',
-    deportiva:    'tag-deportiva',
-    tecnologica:  'tag-tecnologica',
-    artistica:    'tag-artistica',
-    gastronomica: 'tag-gastronomica',
-    recreativa:   'tag-recreativa'
-  };
-  return `<span class="tag ${clases[cat]}" aria-label="Categoría: ${NOMBRES_CATEGORIA[cat]}">
-            <i class="fa-solid ${ICONOS_CATEGORIA[cat]}" aria-hidden="true"></i> ${NOMBRES_CATEGORIA[cat]}
-          </span>`;
-}
-
-/* =============================================
-   RENDER — TARJETA DE ACTIVIDAD (Inicio)
-============================================= */
-
-/**
- * Genera el HTML de una tarjeta de actividad destacada.
- * @param {Object} act - Objeto actividad
- * @returns {string} HTML de la tarjeta
- */
-function renderTarjetaActividad(act) {
-  const ci        = getCupoInfo(act);
-  const libre     = act.cupoMax - act.cupoActual;
-  const alertaBaja = ci.pct >= 80 && ci.pct < 100;
-
-  return `
-    <div class="col-12 col-md-6 col-lg-4">
-      <article class="tarjeta" aria-label="Actividad: ${act.nombre}">
-        <div class="tarjeta-imagen" aria-hidden="true"><i class="fa-solid ${act.icono}"></i></div>
-        <div class="tarjeta-cuerpo">
-          ${getCategoriaTag(act.categoria)}
-          <h3 class="tarjeta-titulo">${act.nombre}</h3>
-          <div class="tarjeta-meta">
-            <span><i class="fa-regular fa-calendar" aria-hidden="true"></i> ${act.fecha}</span>
-            <span><i class="fa-regular fa-clock" aria-hidden="true"></i> ${act.hora}</span>
-            <span><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${act.lugar}</span>
-          </div>
-          ${alertaBaja
-            ? `<div class="alerta-baja-disponibilidad" role="alert">
-                 <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ¡Quedan solo ${libre} cupos!
-               </div>`
-            : ''}
-          <div class="cupo-barra" aria-label="Disponibilidad: ${act.cupoActual} de ${act.cupoMax} cupos ocupados">
-            <div class="cupo-progreso ${ci.clase}" style="width:${Math.min(ci.pct, 100)}%"></div>
-          </div>
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <span style="font-size:0.78rem; color:var(--texto-secundario);">${act.cupoActual}/${act.cupoMax} inscritos</span>
-            <span class="estado-pill ${ci.estadoClase}">${ci.estadoLabel}</span>
-          </div>
-          <div class="d-flex gap-2 flex-wrap">
-            <button type="button" class="btn btn-primario btn-sm"
-                    data-bs-toggle="modal" data-bs-target="#modalDetalle"
-                    onclick="abrirDetalle(${act.id})"
-                    aria-label="Ver detalle de ${act.nombre}">
-              <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Ver detalle
-            </button>
-            <div class="admin-controles">
-              <button type="button" class="btn btn-secundario btn-sm"
-                      onclick="editarActividad(${act.id})"
-                      aria-label="Editar ${act.nombre}">
-                <i class="fa-solid fa-pen" aria-hidden="true"></i> Editar
-              </button>
-              <button type="button" class="btn btn-peligro btn-sm"
-                      onclick="cancelarActividad(${act.id})"
-                      aria-label="Cancelar ${act.nombre}">
-                <i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      </article>
-    </div>`;
-}
-
-/** Renderiza las 3 actividades destacadas en la página de inicio */
-function renderDestacadas() {
-  const grid = document.getElementById('actividadesDestacadas');
-  if (!grid) return;
-  const destacadas = ACTIVIDADES.filter(a => a.destacada).slice(0, 3);
-  grid.innerHTML = destacadas.map(renderTarjetaActividad).join('');
-}
-
-/* =============================================
-   MODAL — DETALLE DE ACTIVIDAD
-============================================= */
-
-/**
- * Abre el modal con el detalle de una actividad.
- * @param {number} id - ID de la actividad
- */
-function abrirDetalle(id) {
-  const act = ACTIVIDADES.find(a => a.id === id);
-  if (!act) return;
-
-  const ci    = getCupoInfo(act);
-  const libre = act.cupoMax - act.cupoActual;
-
-  document.getElementById('modalTag').innerHTML      = getCategoriaTag(act.categoria);
-  document.getElementById('modalTitulo').textContent = act.nombre;
-  document.getElementById('modalEstado').innerHTML   = `<span class="estado-pill ${ci.estadoClase}">${ci.estadoLabel}</span>`;
-
-  document.getElementById('modalCuerpo').innerHTML = `
-    <div class="modal-campo">
-      <div class="modal-campo-label">Descripción</div>
-      <div class="modal-campo-valor">${act.descripcion}</div>
-    </div>
-    <div class="row g-3">
-      <div class="col-6">
-        <div class="modal-campo">
-          <div class="modal-campo-label"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Fecha</div>
-          <div class="modal-campo-valor fw-bold">${act.fecha}, 2026</div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="modal-campo">
-          <div class="modal-campo-label"><i class="fa-regular fa-clock" aria-hidden="true"></i> Hora</div>
-          <div class="modal-campo-valor fw-bold">${act.hora} hrs</div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="modal-campo">
-          <div class="modal-campo-label"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Lugar</div>
-          <div class="modal-campo-valor fw-bold">${act.lugar}</div>
-        </div>
-      </div>
-      <div class="col-6">
-        <div class="modal-campo">
-          <div class="modal-campo-label"><i class="fa-solid fa-users" aria-hidden="true"></i> Cupos</div>
-          <div class="modal-campo-valor fw-bold">
-            ${libre > 0 ? libre + ' disponibles' : 'Agotados'} de ${act.cupoMax}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-campo">
-      <div class="modal-campo-label"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Requisitos</div>
-      <div class="modal-campo-valor">${act.requisitos}</div>
-    </div>
-    ${ci.pct >= 80 && ci.pct < 100
-      ? `<div class="alerta-cupo" role="alert">
-           <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> ¡Quedan solo ${libre} cupos disponibles!
-         </div>`
-      : ''}
-    <button type="button"
-            class="btn ${libre > 0 ? 'btn-primario' : 'btn-acento'} w-100 justify-content-center"
-            data-bs-dismiss="modal"
-            onclick="irAInscripcionDesdeModal(${act.id})"
-            aria-label="${libre > 0 ? 'Inscribirse en ' + act.nombre : 'Unirse a lista de espera de ' + act.nombre}">
-      ${libre > 0
-        ? '<i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Inscribirme en esta actividad'
-        : '<i class="fa-solid fa-list-check" aria-hidden="true"></i> Unirme a lista de espera'}
-    </button>`;
-}
-
-/**
- * Redirige a inscripcion.html con el ID de actividad preseleccionado.
- * @param {number} id - ID de la actividad
- */
-function irAInscripcionDesdeModal(id) {
-  window.location.href = `inscripcion.html?actividad=${id}`;
-}
-
-/* =============================================
-   RENDER — AGENDA
-============================================= */
-
-const ESTADO_CLASES = {
-  disponible: 'estado-disponible',
-  lleno:      'estado-lleno',
-  cancelado:  'estado-cancelado'
-};
-
-const ESTADO_ICONOS = {
-  disponible: 'fa-circle-check',
-  lleno:      'fa-circle-exclamation',
-  cancelado:  'fa-circle-xmark'
-};
-
-const ESTADO_LABELS = {
-  disponible: 'Disponible',
-  lleno:      'Lleno',
-  cancelado:  'Cancelado'
-};
-
-/** Renderiza la agenda cronológica del festival */
-function renderAgenda() {
-  const cont = document.getElementById('agendaContenido');
-  if (!cont) return;
-
-  let html = '';
-
-  AGENDA.forEach(dia => {
-    html += `<div class="agenda-grupo-fecha" role="rowgroup" aria-label="Eventos del ${dia.dia}">
-               <i class="fa-regular fa-calendar-days" aria-hidden="true"></i> ${dia.dia}
-             </div>`;
-
-    dia.eventos.forEach(ev => {
-      html += `
-        <div class="agenda-fila" role="row" aria-label="${ev.hora} — ${ev.nombre}">
-          <div class="agenda-hora" aria-label="Hora: ${ev.hora}">${ev.hora}</div>
-          <div>
-            <div class="agenda-nombre">${ev.nombre}</div>
-            <div class="agenda-lugar" aria-label="Lugar: ${ev.lugar}">
-              <i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${ev.lugar}
-            </div>
-          </div>
-          <div>${getCategoriaTag(ev.categoria)}</div>
-          <div>
-            <span class="estado-pill ${ESTADO_CLASES[ev.estado]}"
-                  aria-label="Estado: ${ESTADO_LABELS[ev.estado]}">
-              <i class="fa-solid ${ESTADO_ICONOS[ev.estado]}" aria-hidden="true"></i> ${ESTADO_LABELS[ev.estado]}
-            </span>
-          </div>
-          <div class="admin-controles" style="gap:0.4rem;">
-            <button type="button" class="btn btn-secundario btn-sm"
-                    onclick="editarEvento('${ev.nombre}')"
-                    aria-label="Editar evento ${ev.nombre}">
-              <i class="fa-solid fa-pen" aria-hidden="true"></i>
-            </button>
-          </div>
-        </div>`;
-    });
-  });
-
-  cont.innerHTML = html;
-}
-
-/* =============================================
-   FORMULARIO DE INSCRIPCIÓN
-============================================= */
-
-/** Puebla el select de actividades */
-function poblarSelectActividades() {
-  const sel = document.getElementById('inpActividad');
-  if (!sel) return;
-
-  sel.innerHTML = '<option value="">— Seleccioná una actividad —</option>';
-
-  ACTIVIDADES.forEach(a => {
-    const ci    = getCupoInfo(a);
-    const libre = a.cupoMax - a.cupoActual;
-    const label = ci.pct >= 100
-      ? `${a.nombre} (Lista de espera)`
-      : `${a.nombre} — ${libre} cupos`;
-
-    const opt = document.createElement('option');
-    opt.value       = a.id;
-    opt.textContent = label;
-    sel.appendChild(opt);
-  });
-
-  // Preseleccionar actividad si viene por query param (?actividad=ID)
-  const params = new URLSearchParams(window.location.search);
-  const actId  = params.get('actividad');
-  if (actId && ACTIVIDADES.some(a => a.id == actId)) {
-    sel.value = actId;
-    verificarCupoActividad(actId);
-  }
-}
-
-/**
- * Muestra alerta de cupos según la actividad seleccionada.
- * @param {string|number} id - ID de la actividad
- */
-function verificarCupoActividad(id) {
-  const alertaEl = document.getElementById('alertaCupo');
-  const textoEl  = document.getElementById('alertaCupoTexto');
-  if (!alertaEl || !textoEl) return;
-
-  if (!id) {
-    alertaEl.style.display = 'none';
-    return;
-  }
-
-  const act = ACTIVIDADES.find(a => a.id == id);
-  if (!act) return;
-
-  const ci    = getCupoInfo(act);
-  const libre = act.cupoMax - act.cupoActual;
-
-  if (ci.pct >= 100) {
-    textoEl.textContent       = `"${act.nombre}" no tiene cupos. Tu registro quedará en lista de espera.`;
-    alertaEl.style.display    = 'flex';
-    alertaEl.style.background = 'linear-gradient(135deg, #fff3cd, #ffeaa7)';
-    alertaEl.style.borderColor= '#ffc63e';
-    alertaEl.style.color      = '#7a4800';
-  } else if (ci.pct >= 80) {
-    textoEl.textContent       = `¡Solo quedan ${libre} cupos para "${act.nombre}"! Inscribite pronto.`;
-    alertaEl.style.display    = 'flex';
-    alertaEl.style.background = 'linear-gradient(135deg, #d4edda, #c3e6cb)';
-    alertaEl.style.borderColor= '#4aa147';
-    alertaEl.style.color      = '#1a5a1a';
-  } else {
-    alertaEl.style.display = 'none';
-  }
-}
-
-/** Valida y procesa el formulario de inscripción */
-function enviarInscripcion() {
-  const nombre  = document.getElementById('inpNombre').value.trim();
-  const ident   = document.getElementById('inpIdentificacion').value.trim();
-  const correo  = document.getElementById('inpCorreo').value.trim();
-  const tel     = document.getElementById('inpTelefono').value.trim();
-  const carrera = document.getElementById('inpCarrera').value.trim();
-  const actId   = document.getElementById('inpActividad').value;
-
-  // Limpiar errores previos
-  ['inpNombre', 'inpIdentificacion', 'inpCorreo', 'inpTelefono', 'inpCarrera', 'inpActividad']
-    .forEach(id => document.getElementById(id).classList.remove('is-invalid'));
-
-  const errores = [];
-  if (!nombre)  { errores.push('Nombre completo');         document.getElementById('inpNombre').classList.add('is-invalid'); }
-  if (!ident)   { errores.push('Identificación');          document.getElementById('inpIdentificacion').classList.add('is-invalid'); }
-  if (!correo || !correo.includes('@') || !correo.includes('.')) {
-    errores.push('Correo electrónico válido');
-    document.getElementById('inpCorreo').classList.add('is-invalid');
-  }
-  if (!tel)     { errores.push('Teléfono');                document.getElementById('inpTelefono').classList.add('is-invalid'); }
-  if (!carrera) { errores.push('Carrera o grupo');         document.getElementById('inpCarrera').classList.add('is-invalid'); }
-  if (!actId)   { errores.push('Actividad seleccionada');  document.getElementById('inpActividad').classList.add('is-invalid'); }
-
-  if (errores.length > 0) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Campos incompletos',
-      html: `Por favor completá:<br><ul style="text-align:left; margin-top:0.5rem;">${errores.map(e => `<li>${e}</li>`).join('')}</ul>`,
-      confirmButtonColor: '#006AEA',
-      confirmButtonText: 'Entendido'
-    });
-    return;
-  }
-
-  const act = ACTIVIDADES.find(a => a.id == actId);
-  const ci  = getCupoInfo(act);
-
-  if (ci.pct >= 100) {
-    Swal.fire({
-      icon: 'info',
-      title: 'Lista de Espera',
-      html: `<p>La actividad <strong>"${act.nombre}"</strong> está llena.</p>
-             <p style="margin-top:0.75rem;">Tu registro ha sido guardado en la <strong>lista de espera</strong>.
-             Serás notificado a <strong>${correo}</strong> si se habilitan cupos.</p>`,
-      confirmButtonColor: '#ffc63e',
-      confirmButtonText: 'Aceptar'
-    });
-  } else {
-    Swal.fire({
-      icon: 'success',
-      title: '¡Inscripción Confirmada!',
-      html: `<p>¡Hola, <strong>${nombre}</strong>!</p>
-             <p style="margin-top:0.5rem;">Tu inscripción en <strong>"${act.nombre}"</strong> ha sido confirmada.</p>
-             <p style="margin-top:0.5rem; font-size:0.9rem; color:#666;">
-               Se enviará confirmación a <strong>${correo}</strong>
-             </p>`,
-      confirmButtonColor: '#006AEA',
-      confirmButtonText: 'Volver al inicio'
-    }).then(r => {
-      if (r.isConfirmed) window.location.href = 'inicio.html';
-    });
-
-    // Simular incremento de cupo
-    act.cupoActual = Math.min(act.cupoActual + 1, act.cupoMax);
-    poblarSelectActividades();
-  }
-}
-
-/* =============================================
-   PANEL ADMINISTRADOR — ACCIONES
-============================================= */
-
-/**
- * Inicia la edición de una actividad (admin).
- * @param {number} id - ID de la actividad
- */
-function editarActividad(id) {
-  const act = ACTIVIDADES.find(a => a.id === id);
-  Swal.fire({
-    icon: 'info',
-    title: 'Editar Actividad',
-    text: `Editando: "${act.nombre}"`,
-    confirmButtonColor: '#006AEA'
-  });
-}
-
-/**
- * Solicita confirmación para cancelar una actividad.
- * @param {number} id - ID de la actividad
- */
-function cancelarActividad(id) {
-  const act = ACTIVIDADES.find(a => a.id === id);
-  Swal.fire({
-    icon: 'warning',
-    title: 'Cancelar Actividad',
-    text: `¿Cancelar "${act.nombre}"?`,
-    showCancelButton: true,
-    confirmButtonColor: '#d2232a',
-    cancelButtonColor:  '#7c7b75',
-    confirmButtonText: 'Sí, cancelar',
-    cancelButtonText:  'No'
-  }).then(r => {
-    if (r.isConfirmed) {
-      Swal.fire({ icon: 'success', title: 'Actividad cancelada', confirmButtonColor: '#006AEA' });
-    }
-  });
-}
-
-/**
- * Edita un evento de agenda (admin).
- * @param {string} nombre - Nombre del evento
- */
-function editarEvento(nombre) {
-  Swal.fire({
-    icon: 'info',
-    title: 'Editar Evento',
-    text: `Editando: "${nombre}"`,
-    confirmButtonColor: '#006AEA'
-  });
-}
-
-/**
- * Abre el modal admin para agregar un evento a la agenda.
- */
-function mostrarFormAgenda() {
-  const opcionesCategoria = Object.entries(NOMBRES_CATEGORIA)
-    .map(([valor, nombre]) => `<option value="${valor}">${nombre}</option>`).join('');
-  const opcionesDias = AGENDA.map(d => `<option>${d.dia}</option>`).join('');
-
-  document.getElementById('modalAdminCuerpo').innerHTML = `
-    <div class="mb-3">
-      <label class="form-label">Nombre del evento <span class="requerido">*</span></label>
-      <input class="form-control" />
-    </div>
-    <div class="row g-3 mb-3">
-      <div class="col-6">
-        <label class="form-label">Día <span class="requerido">*</span></label>
-        <select class="form-select">${opcionesDias}</select>
-      </div>
-      <div class="col-6">
-        <label class="form-label">Hora <span class="requerido">*</span></label>
-        <input type="time" class="form-control" />
-      </div>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Lugar <span class="requerido">*</span></label>
-      <input class="form-control" />
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Categoría</label>
-      <select class="form-select"><option value="">Seleccioná...</option>${opcionesCategoria}</select>
-    </div>
-    <button type="button" class="btn btn-primario w-100 justify-content-center"
-            onclick="guardadoExitoso('modalAdmin')">
-      <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Agregar a Agenda
-    </button>`;
-
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
-}
-
-/**
- * Abre el modal admin para registrar una nueva actividad.
- */
-function mostrarFormActividad() {
-  const opcionesCategoria = Object.entries(NOMBRES_CATEGORIA)
-    .map(([valor, nombre]) => `<option value="${valor}">${nombre}</option>`).join('');
-
-  document.getElementById('modalAdminCuerpo').innerHTML = `
-    <div class="mb-3">
-      <label class="form-label">Nombre de la actividad <span class="requerido">*</span></label>
-      <input class="form-control" placeholder="Ej: Taller de Fotografía" />
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Categoría <span class="requerido">*</span></label>
-      <select class="form-select"><option value="">Seleccioná...</option>${opcionesCategoria}</select>
-    </div>
-    <div class="row g-3 mb-3">
-      <div class="col-6">
-        <label class="form-label">Fecha <span class="requerido">*</span></label>
-        <input type="date" class="form-control" />
-      </div>
-      <div class="col-6">
-        <label class="form-label">Hora <span class="requerido">*</span></label>
-        <input type="time" class="form-control" />
-      </div>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Lugar <span class="requerido">*</span></label>
-      <input class="form-control" placeholder="Ej: Auditorio Principal" />
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Cupos máximos <span class="requerido">*</span></label>
-      <input type="number" class="form-control" placeholder="Ej: 30" min="1" />
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Descripción</label>
-      <textarea class="form-control" rows="3" placeholder="Descripción de la actividad..."></textarea>
-    </div>
-    <button type="button" class="btn btn-primario w-100 justify-content-center"
-            onclick="guardadoExitoso('modalAdmin')">
-      <i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar Actividad
-    </button>`;
-
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
-}
-
-/**
- * Cierra el modal indicado y muestra confirmación de guardado.
- * @param {string} modalId - ID del modal a cerrar
- */
-function guardadoExitoso(modalId) {
-  bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId)).hide();
-  Swal.fire({
-    icon: 'success',
-    title: 'Guardado',
-    text: 'El registro fue guardado exitosamente.',
-    confirmButtonColor: '#006AEA',
-    timer: 2000,
-    showConfirmButton: false,
-    toast: true,
-    position: 'top-end'
-  });
-}
-
-/* =============================================
-   INICIALIZACIÓN
-============================================= */
-document.addEventListener('DOMContentLoaded', () => {
-  initModoOscuro();
-  renderDestacadas();
-  renderAgenda();
-  poblarSelectActividades();
-
-  // Resaltar enlace de navegación activo
-  const pagina = window.location.pathname.split('/').pop() || 'inicio.html';
-  document.querySelectorAll('.nav-principal .nav-link').forEach(link => {
-    if (link.getAttribute('href') === pagina) {
-      link.classList.add('active');
-      link.setAttribute('aria-current', 'page');
-    }
-  });
-});
-
-/* =============================================
-   AUTH — Login / Registro / Sesión
-   Persistencia: localStorage
-   Compartido por todas las páginas
-============================================= */
-
-const DOMINIO_ADMIN = '@ucenfotec.ac.cr';
-
-/* ── Helpers de localStorage ── */
-function getUsuarios() {
-  return JSON.parse(localStorage.getItem('cf_usuarios') || '[]');
-}
-function guardarUsuarios(arr) {
-  localStorage.setItem('cf_usuarios', JSON.stringify(arr));
-}
-function getSesion() {
-  return JSON.parse(localStorage.getItem('cf_sesion') || 'null');
-}
-function guardarSesion(u) {
-  localStorage.setItem('cf_sesion', JSON.stringify(u));
-}
-function cerrarSesionStorage() {
-  localStorage.removeItem('cf_sesion');
-}
-
-/* ── Determina si un correo es institucional ── */
-function esCorreoAdmin(correo) {
-  return correo.trim().toLowerCase().endsWith(DOMINIO_ADMIN);
-}
-
-/* ── Actualiza UI según el estado de sesión ── */
 function aplicarEstadoSesion() {
   const sesion = getSesion();
   const btn    = document.getElementById('btnSesion');
@@ -894,79 +74,107 @@ function aplicarEstadoSesion() {
     btn.onclick = abrirModalAuth;
     document.body.classList.remove('modo-admin');
     if (badge) badge.classList.remove('visible');
+    // Callback opcional: cada página define _onSesionNula() si necesita limpiar algo
+    if (typeof _onSesionNula === 'function') _onSesionNula();
     return;
   }
 
-  const esAdmin = esCorreoAdmin(sesion.correo);
   const primerNombre = sesion.nombre.split(' ')[0];
-
   btn.innerHTML = `<i class="fa-solid fa-circle-user" aria-hidden="true"></i> ${primerNombre} &nbsp;<small style="opacity:.7;font-size:.72rem;">(Cerrar sesión)</small>`;
   btn.classList.add('sesion-activa');
   btn.onclick = confirmarCerrarSesion;
 
-  if (esAdmin) {
+  if (esCorreoAdmin(sesion.correo)) {
     document.body.classList.add('modo-admin');
     if (badge) badge.classList.add('visible');
+    // Callback opcional: cada página define _onSesionAdmin() con su propia lógica
+    if (typeof _onSesionAdmin === 'function') _onSesionAdmin();
   } else {
     document.body.classList.remove('modo-admin');
     if (badge) badge.classList.remove('visible');
+    // Callback opcional: cada página define _onSesionVisitante() si necesita algo
+    if (typeof _onSesionVisitante === 'function') _onSesionVisitante();
   }
 }
 
-/* ── Abrir modal de auth ── */
+/* ── Callbacks de sesión para inicio.html ──────
+   Solo se definen si los elementos existen en la página.
+   inscripcion.html define los suyos en inscripcion.js.
+───────────────────────────────────────────── */
+function _onSesionAdmin() {
+  // inicio.html: oculta actividades, muestra tabla de usuarios
+  const sec  = document.getElementById('seccionUsuarios');
+  const dest = document.getElementById('seccionDestacadas');
+  if (sec)  { sec.style.display  = 'block'; cargarTablaUsuarios(); }
+  if (dest) dest.style.display = 'none';
+}
+
+function _onSesionVisitante() {
+  // inicio.html: oculta tabla de usuarios, muestra actividades
+  const sec  = document.getElementById('seccionUsuarios');
+  const dest = document.getElementById('seccionDestacadas');
+  if (sec)  sec.style.display  = 'none';
+  if (dest) dest.style.display = '';
+}
+
+function _onSesionNula() {
+  // inicio.html: igual que visitante
+  _onSesionVisitante();
+}
+
+/* =============================================
+   MODAL AUTH — abrir / tabs
+============================================= */
 function abrirModalAuth() {
+  limpiarCamposAuth();   // limpia valores antes de abrir
   cambiarTab('login');
   const el = document.getElementById('modalAuth');
   if (el) bootstrap.Modal.getOrCreateInstance(el).show();
 }
 
-/* ── Cambiar entre tabs ── */
 function cambiarTab(cual) {
-  ['login', 'registro'].forEach(t => {
-    const tab   = document.getElementById('tab'   + capitalizar(t));
-    const panel = document.getElementById('panel' + capitalizar(t));
+  ['login','registro'].forEach(t => {
+    const tab   = document.getElementById('tab'   + _cap(t));
+    const panel = document.getElementById('panel' + _cap(t));
     if (!tab || !panel) return;
-    const activo = (t === cual);
-    tab.classList.toggle('activo', activo);
-    panel.classList.toggle('activo', activo);
-    tab.setAttribute('aria-selected', activo);
+    const on = (t === cual);
+    tab.classList.toggle('activo', on);
+    panel.classList.toggle('activo', on);
+    tab.setAttribute('aria-selected', on);
   });
-  limpiarErroresAuth();
+  limpiarCamposAuth();   // limpia valores Y errores al cambiar de tab
 }
 
-function capitalizar(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function _cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-/* ── Hints dinámicos de dominio ── */
-function mostrarHintRegistro(val) {
-  const hint = document.getElementById('regDominioHint');
-  if (!hint) return;
-  if (!val) { hint.textContent = ''; return; }
-  if (esCorreoAdmin(val)) {
-    hint.className = 'dominio-hint dominio-admin';
-    hint.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Correo institucional — rol <strong>Administrador</strong>';
-  } else {
-    hint.className = 'dominio-hint dominio-no';
-    hint.innerHTML = '<i class="fa-solid fa-circle-info"></i> Correo no institucional — rol <strong>Visitante</strong>';
-  }
-}
-
-function mostrarHintLogin(val) {
-  const hint = document.getElementById('loginDominioHint');
-  if (!hint) return;
-  if (!val) { hint.textContent = ''; return; }
-  if (esCorreoAdmin(val)) {
-    hint.className = 'dominio-hint dominio-admin';
-    hint.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Acceso de <strong>Administrador</strong>';
-  } else {
-    hint.className = 'dominio-hint dominio-no';
-    hint.innerHTML = '<i class="fa-solid fa-circle-info"></i> Acceso de <strong>Visitante</strong>';
-  }
-}
-
-/* ── Limpiar errores ── */
+/* Limpia solo los bordes de error (is-invalid) */
 function limpiarErroresAuth() {
   document.querySelectorAll('#modalAuth .is-invalid')
     .forEach(el => el.classList.remove('is-invalid'));
+}
+
+/* Limpia valores de todos los campos del modal + hints + errores */
+function limpiarCamposAuth() {
+  // Campos de LOGIN
+  ['loginCedula', 'loginCorreo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Campos de REGISTRO
+  ['regNombre', 'regCedula', 'regTelefono', 'regCarrera', 'regCorreo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  // Hints de dominio
+  ['loginDominioHint', 'regDominioHint'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = ''; el.className = 'dominio-hint dominio-no'; }
+  });
+
+  // Quitar marcas de error
+  limpiarErroresAuth();
 }
 
 function marcarInvalido(id) {
@@ -974,8 +182,37 @@ function marcarInvalido(id) {
   if (el) el.classList.add('is-invalid');
 }
 
-/* ── REGISTRO ── */
-function procesarRegistro() {
+/* ── Hints dinámicos de dominio ── */
+function mostrarHintRegistro(val) {
+  const h = document.getElementById('regDominioHint');
+  if (!h) return;
+  if (!val) { h.textContent = ''; return; }
+  if (esCorreoAdmin(val)) {
+    h.className = 'dominio-hint dominio-admin';
+    h.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Correo institucional — rol <strong>Administrador</strong>';
+  } else {
+    h.className = 'dominio-hint dominio-no';
+    h.innerHTML = '<i class="fa-solid fa-circle-info"></i> Correo no institucional — rol <strong>Visitante</strong>';
+  }
+}
+
+function mostrarHintLogin(val) {
+  const h = document.getElementById('loginDominioHint');
+  if (!h) return;
+  if (!val) { h.textContent = ''; return; }
+  if (esCorreoAdmin(val)) {
+    h.className = 'dominio-hint dominio-admin';
+    h.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Acceso de <strong>Administrador</strong>';
+  } else {
+    h.className = 'dominio-hint dominio-no';
+    h.innerHTML = '<i class="fa-solid fa-circle-info"></i> Acceso de <strong>Visitante</strong>';
+  }
+}
+
+/* =============================================
+   POST /usuarios/registro — HTTP POST → MongoDB
+============================================= */
+async function procesarRegistro() {
   limpiarErroresAuth();
   const nombre  = document.getElementById('regNombre').value.trim();
   const cedula  = document.getElementById('regCedula').value.trim();
@@ -988,54 +225,50 @@ function procesarRegistro() {
   if (!cedula)  { marcarInvalido('regCedula');   ok = false; }
   if (!tel)     { marcarInvalido('regTelefono'); ok = false; }
   if (!carrera) { marcarInvalido('regCarrera');  ok = false; }
-  if (!correo || !correo.includes('@') || !correo.includes('.')) {
-    marcarInvalido('regCorreo'); ok = false;
-  }
+  if (!correo || !correo.includes('@') || !correo.includes('.')) { marcarInvalido('regCorreo'); ok = false; }
 
   if (!ok) {
-    Swal.fire({
-      icon: 'warning', title: 'Campos incompletos',
-      text: 'Completá todos los campos obligatorios.',
-      confirmButtonColor: '#006AEA'
+    Swal.fire({ icon:'warning', title:'Campos incompletos', text:'Completá todos los campos obligatorios.', confirmButtonColor:'#006AEA' });
+    return;
+  }
+
+  Swal.fire({ title:'Registrando...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
+
+  try {
+    const res  = await fetch(`${API_URL}/usuarios/registro`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ nombre, identificacion:cedula, telefono:tel, carrera, correo })
     });
-    return;
-  }
+    const data = await res.json();
 
-  const usuarios  = getUsuarios();
-  const duplicado = usuarios.find(u => u.cedula === cedula || u.correo === correo);
+    if (!res.ok) {
+      Swal.fire({ icon:'error', title:'Error al registrarse', text:data.msj, confirmButtonColor:'#006AEA' });
+      if (res.status === 409) cambiarTab('login');
+      return;
+    }
 
-  if (duplicado) {
-    const campo = duplicado.correo === correo ? 'ese correo' : 'esa cédula';
+    guardarSesion(data);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAuth')).hide();
+    aplicarEstadoSesion();
+
     Swal.fire({
-      icon: 'error', title: 'Cuenta existente',
-      text: `Ya existe una cuenta con ${campo}. Iniciá sesión.`,
-      confirmButtonColor: '#006AEA'
-    }).then(() => cambiarTab('login'));
-    return;
+      icon:'success',
+      title: data.rol === 'admin' ? '¡Bienvenido, Administrador!' : '¡Registro exitoso!',
+      html:`<p>Hola, <strong>${data.nombre}</strong>.</p>
+            <p style="margin-top:.5rem;">Rol asignado: <strong>${data.rol === 'admin' ? 'Administrador' : 'Visitante'}</strong></p>`,
+      confirmButtonColor:'#006AEA', timer:3000, timerProgressBar:true
+    });
+
+  } catch {
+    Swal.fire({ icon:'error', title:'Sin conexión', text:'Verificá que el servidor esté corriendo en localhost:3000.', confirmButtonColor:'#006AEA' });
   }
-
-  const rol = esCorreoAdmin(correo) ? 'admin' : 'visitante';
-  const nuevoUsuario = { nombre, cedula, tel, carrera, correo, rol };
-  usuarios.push(nuevoUsuario);
-  guardarUsuarios(usuarios);
-  guardarSesion(nuevoUsuario);
-
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAuth')).hide();
-  aplicarEstadoSesion();
-
-  Swal.fire({
-    icon: 'success',
-    title: rol === 'admin' ? '¡Bienvenido, Administrador!' : '¡Registro exitoso!',
-    html: `<p>Hola, <strong>${nombre}</strong>.</p>
-           <p style="margin-top:.5rem;">Rol asignado: <strong>${rol === 'admin' ? 'Administrador' : 'Visitante'}</strong></p>`,
-    confirmButtonColor: '#006AEA',
-    timer: 3000,
-    timerProgressBar: true
-  });
 }
 
-/* ── LOGIN ── */
-function procesarLogin() {
+/* =============================================
+   POST /usuarios/login — HTTP POST → MongoDB
+============================================= */
+async function procesarLogin() {
   limpiarErroresAuth();
   const cedula = document.getElementById('loginCedula').value.trim();
   const correo = document.getElementById('loginCorreo').value.trim().toLowerCase();
@@ -1045,73 +278,547 @@ function procesarLogin() {
   if (!correo || !correo.includes('@')) { marcarInvalido('loginCorreo'); ok = false; }
 
   if (!ok) {
-    Swal.fire({
-      icon: 'warning', title: 'Campos incompletos',
-      text: 'Ingresá tu cédula y correo para continuar.',
-      confirmButtonColor: '#006AEA'
-    });
+    Swal.fire({ icon:'warning', title:'Campos incompletos', text:'Ingresá tu cédula y correo.', confirmButtonColor:'#006AEA' });
     return;
   }
 
-  const usuarios = getUsuarios();
-  const usuario  = usuarios.find(u => u.cedula === cedula && u.correo === correo);
+  Swal.fire({ title:'Verificando...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
 
-  if (!usuario) {
-    Swal.fire({
-      icon: 'error', title: 'Credenciales incorrectas',
-      text: 'No encontramos una cuenta con esa cédula y correo. ¿Ya te registraste?',
-      confirmButtonColor: '#006AEA'
+  try {
+    const res  = await fetch(`${API_URL}/usuarios/login`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ identificacion:cedula, correo })
     });
-    return;
+    const data = await res.json();
+
+    if (!res.ok) {
+      Swal.fire({ icon:'error', title:'Credenciales incorrectas', text:data.msj, confirmButtonColor:'#006AEA' });
+      return;
+    }
+
+    guardarSesion(data);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAuth')).hide();
+    aplicarEstadoSesion();
+
+    Swal.fire({
+      icon:'success',
+      title: data.rol === 'admin' ? '¡Bienvenido, Administrador!' : '¡Bienvenido!',
+      html:`<p>Hola de nuevo, <strong>${data.nombre.split(' ')[0]}</strong>.</p>
+            <p style="margin-top:.5rem;font-size:.9rem;color:#666;">
+              Sesión iniciada como <strong>${data.rol === 'admin' ? 'Administrador' : 'Visitante'}</strong>
+            </p>`,
+      confirmButtonColor:'#006AEA', timer:2500, timerProgressBar:true
+    });
+
+  } catch {
+    Swal.fire({ icon:'error', title:'Sin conexión', text:'Verificá que el servidor esté corriendo en localhost:3000.', confirmButtonColor:'#006AEA' });
   }
-
-  usuario.rol = esCorreoAdmin(correo) ? 'admin' : 'visitante';
-  guardarSesion(usuario);
-
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAuth')).hide();
-  aplicarEstadoSesion();
-
-  const esAdmin = usuario.rol === 'admin';
-  Swal.fire({
-    icon: 'success',
-    title: esAdmin ? '¡Bienvenido, Administrador!' : '¡Bienvenido!',
-    html: `<p>Hola de nuevo, <strong>${usuario.nombre.split(' ')[0]}</strong>.</p>
-           <p style="margin-top:.5rem; font-size:.9rem; color:#666;">
-             Sesión iniciada como <strong>${esAdmin ? 'Administrador' : 'Visitante'}</strong>
-           </p>`,
-    confirmButtonColor: '#006AEA',
-    timer: 2500,
-    timerProgressBar: true
-  });
 }
 
-/* ── CERRAR SESIÓN ── */
+/* =============================================
+   CERRAR SESIÓN
+============================================= */
 function confirmarCerrarSesion() {
   Swal.fire({
-    icon: 'question', title: 'Cerrar sesión',
-    text: '¿Querés cerrar tu sesión actual?',
-    showCancelButton: true,
-    confirmButtonColor: '#d2232a',
-    cancelButtonColor:  '#7c7b75',
-    confirmButtonText: 'Sí, salir',
-    cancelButtonText:  'Cancelar'
+    icon:'question', title:'Cerrar sesión', text:'¿Querés cerrar tu sesión actual?',
+    showCancelButton:true, confirmButtonColor:'#d2232a', cancelButtonColor:'#7c7b75',
+    confirmButtonText:'Sí, salir', cancelButtonText:'Cancelar'
   }).then(r => {
     if (r.isConfirmed) {
       cerrarSesionStorage();
       aplicarEstadoSesion();
-      Swal.fire({
-        icon: 'info', title: 'Sesión cerrada',
-        text: 'Hasta pronto.',
-        confirmButtonColor: '#006AEA',
-        timer: 1800,
-        showConfirmButton: false,
-        toast: true,
-        position: 'top-end'
-      });
+      Swal.fire({ icon:'info', title:'Sesión cerrada', text:'Hasta pronto.', confirmButtonColor:'#006AEA', timer:1800, showConfirmButton:false, toast:true, position:'top-end' });
     }
   });
 }
 
+/* =============================================
+   GET /usuarios — Tabla de usuarios (admin)
+   Se llama automáticamente al detectar sesión admin.
+   Guarda los datos en _usuariosCache para el filtro.
+============================================= */
+let _usuariosCache = [];   // Cache para búsqueda/filtro sin re-fetch
+
+async function cargarTablaUsuarios() {
+  const secUsuarios   = document.getElementById('seccionUsuarios');
+  const secDestacadas = document.getElementById('seccionDestacadas');
+  if (!secUsuarios) return;   // No estamos en inicio.html
+
+  // Intercambiar secciones
+  if (secDestacadas) secDestacadas.style.display = 'none';
+  secUsuarios.style.display = 'block';
+
+  const tbody = document.getElementById('tablaUsuariosCuerpo');
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="7" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status" aria-label="Cargando"></div>
+        <p class="mt-2 text-muted mb-0">Cargando usuarios desde MongoDB...</p>
+      </td>
+    </tr>`;
+
+  try {
+    // ── HTTP GET /usuarios ─────────────────────
+    const res  = await fetch(`${API_URL}/usuarios`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center text-danger py-4">
+        <i class="fa-solid fa-triangle-exclamation fa-2x mb-2 d-block"></i>
+        Error al obtener usuarios: ${data.msj}
+      </td></tr>`;
+      return;
+    }
+
+    _usuariosCache = data;
+    _renderFilaUsuarios(data);
+    _actualizarContadores(data);
+
+  } catch {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="text-center text-danger py-5">
+          <i class="fa-solid fa-triangle-exclamation fa-2x mb-2 d-block"></i>
+          Sin conexión con el servidor.<br>
+          <small class="text-muted">Verificá que el backend esté corriendo en localhost:3000</small>
+        </td>
+      </tr>`;
+  }
+}
+
+/* Renderiza filas de la tabla con los datos recibidos */
+function _renderFilaUsuarios(data) {
+  const tbody   = document.getElementById('tablaUsuariosCuerpo');
+  const infoEl  = document.getElementById('tablaInfo');
+  if (!tbody) return;
+
+  if (infoEl) infoEl.textContent = `Mostrando ${data.length} de ${_usuariosCache.length} registros`;
+
+  if (data.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" class="text-center text-muted py-5">
+          <i class="fa-solid fa-users-slash fa-2x mb-2 d-block"></i>
+          No se encontraron usuarios con esos criterios.
+        </td>
+      </tr>`;
+    return;
+  }
+
+  tbody.innerHTML = data.map(u => `
+    <tr>
+      <td class="ps-4 fw-bold">${u.nombre}</td>
+      <td>${u.identificacion}</td>
+      <td>
+        <a href="mailto:${u.correo}" class="text-decoration-none"
+           style="color:var(--azul-principal);">${u.correo}</a>
+      </td>
+      <td>${u.telefono}</td>
+      <td>${u.carrera}</td>
+      <td class="text-center">
+        <span class="badge ${u.rol === 'admin' ? 'bg-warning text-dark' : 'bg-primary'}">
+          <i class="fa-solid ${u.rol === 'admin' ? 'fa-shield-halved' : 'fa-user'}"></i>
+          ${u.rol === 'admin' ? 'Admin' : 'Visitante'}
+        </span>
+      </td>
+      <td class="text-center pe-4">
+        <button class="btn btn-sm btn-outline-warning me-1"
+                onclick="abrirModalEditar('${u._id}','${_esc(u.nombre)}','${_esc(u.identificacion)}','${_esc(u.telefono)}','${_esc(u.carrera)}','${_esc(u.correo)}')"
+                aria-label="Editar usuario ${u.nombre}">
+          <i class="fa-solid fa-pen" aria-hidden="true"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger"
+                onclick="eliminarUsuario('${u._id}','${_esc(u.nombre)}')"
+                aria-label="Eliminar usuario ${u.nombre}">
+          <i class="fa-solid fa-trash" aria-hidden="true"></i>
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+/* Actualiza las tarjetas de resumen */
+function _actualizarContadores(data) {
+  const admins    = data.filter(u => u.rol === 'admin').length;
+  const visitantes= data.filter(u => u.rol === 'visitante').length;
+  const el = id => document.getElementById(id);
+  if (el('contadorUsuarios')) el('contadorUsuarios').textContent = data.length;
+  if (el('resumenTotal'))     el('resumenTotal').textContent     = data.length;
+  if (el('resumenAdmins'))    el('resumenAdmins').textContent    = admins;
+  if (el('resumenVisitantes'))el('resumenVisitantes').textContent= visitantes;
+}
+
+/* Filtra la tabla por texto libre + selector de rol (sin re-fetch) */
+function filtrarTablaUsuarios(texto) {
+  const rol  = document.getElementById('filtroRol')?.value || '';
+  const q    = (texto || '').toLowerCase();
+  const filtrados = _usuariosCache.filter(u => {
+    const coincideTexto = !q ||
+      u.nombre.toLowerCase().includes(q) ||
+      u.correo.toLowerCase().includes(q) ||
+      u.carrera.toLowerCase().includes(q) ||
+      u.identificacion.toLowerCase().includes(q);
+    const coincideRol = !rol || u.rol === rol;
+    return coincideTexto && coincideRol;
+  });
+  _renderFilaUsuarios(filtrados);
+}
+
+/* Escapa comillas simples para evitar romper los onclick inline */
+function _esc(s) { return (s || '').replace(/'/g, "\\'"); }
+
+/* =============================================
+   DELETE /usuarios/:id — HTTP DELETE
+============================================= */
+async function eliminarUsuario(id, nombre) {
+  const result = await Swal.fire({
+    icon:'warning', title:'¿Eliminar usuario?',
+    html:`¿Seguro que querés eliminar a <strong>${nombre}</strong>?<br><small class="text-muted">Esta acción no se puede deshacer.</small>`,
+    showCancelButton:true, confirmButtonColor:'#d2232a', cancelButtonColor:'#7c7b75',
+    confirmButtonText:'Sí, eliminar', cancelButtonText:'Cancelar'
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res  = await fetch(`${API_URL}/usuarios/${id}`, { method:'DELETE' });
+    const data = await res.json();
+
+    if (!res.ok) {
+      Swal.fire({ icon:'error', title:'Error', text:data.msj, confirmButtonColor:'#006AEA' });
+      return;
+    }
+
+    Swal.fire({ icon:'success', title:'Usuario eliminado', text:`${nombre} fue eliminado correctamente.`, confirmButtonColor:'#006AEA', timer:2000, timerProgressBar:true });
+    cargarTablaUsuarios();
+
+  } catch {
+    Swal.fire({ icon:'error', title:'Sin conexión', text:'No se pudo conectar con el servidor.', confirmButtonColor:'#006AEA' });
+  }
+}
+
+/* =============================================
+   PUT /usuarios/:id — Modal edición
+============================================= */
+function abrirModalEditar(id, nombre, identificacion, telefono, carrera, correo) {
+  const cuerpo = document.getElementById('modalAdminCuerpo');
+  const titulo = document.getElementById('modalAdminTitulo');
+  if (!cuerpo) return;
+  if (titulo) titulo.innerHTML = '<i class="fa-solid fa-pen"></i> Editar Usuario';
+
+  cuerpo.innerHTML = `
+    <div class="mb-3">
+      <label class="form-label">Nombre completo <span class="requerido">*</span></label>
+      <input type="text" id="editNombre" class="form-control" value="${nombre}" />
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">
+        <label class="form-label">Identificación <span class="requerido">*</span></label>
+        <input type="text" id="editCedula" class="form-control" value="${identificacion}" />
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Teléfono <span class="requerido">*</span></label>
+        <input type="tel" id="editTelefono" class="form-control" value="${telefono}" />
+      </div>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Carrera <span class="requerido">*</span></label>
+      <input type="text" id="editCarrera" class="form-control" value="${carrera}" />
+    </div>
+    <div class="mb-4">
+      <label class="form-label">Correo electrónico <span class="requerido">*</span></label>
+      <input type="email" id="editCorreo" class="form-control" value="${correo}"
+             oninput="mostrarHintEditar(this.value)" />
+      <p class="dominio-hint" id="editDominioHint"></p>
+    </div>
+    <button type="button" class="btn btn-primario w-100 justify-content-center"
+            onclick="guardarEdicion('${id}')">
+      <i class="fa-solid fa-floppy-disk"></i> Guardar cambios
+    </button>`;
+
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
+}
+
+function mostrarHintEditar(val) {
+  const h = document.getElementById('editDominioHint');
+  if (!h || !val) return;
+  if (esCorreoAdmin(val)) {
+    h.className = 'dominio-hint dominio-admin';
+    h.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Correo institucional — rol <strong>Administrador</strong>';
+  } else {
+    h.className = 'dominio-hint dominio-no';
+    h.innerHTML = '<i class="fa-solid fa-circle-info"></i> Correo no institucional — rol <strong>Visitante</strong>';
+  }
+}
+
+async function guardarEdicion(id) {
+  const nombre         = document.getElementById('editNombre').value.trim();
+  const identificacion = document.getElementById('editCedula').value.trim();
+  const telefono       = document.getElementById('editTelefono').value.trim();
+  const carrera        = document.getElementById('editCarrera').value.trim();
+  const correo         = document.getElementById('editCorreo').value.trim().toLowerCase();
+
+  if (!nombre || !identificacion || !telefono || !carrera || !correo) {
+    Swal.fire({ icon:'warning', title:'Campos incompletos', text:'Completá todos los campos.', confirmButtonColor:'#006AEA' });
+    return;
+  }
+
+  Swal.fire({ title:'Guardando...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
+
+  try {
+    const res  = await fetch(`${API_URL}/usuarios/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ nombre, identificacion, telefono, carrera, correo })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      Swal.fire({ icon:'error', title:'Error al actualizar', text:data.msj, confirmButtonColor:'#006AEA' });
+      return;
+    }
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).hide();
+    Swal.fire({ icon:'success', title:'Usuario actualizado', text:`${data.nombre} fue actualizado correctamente.`, confirmButtonColor:'#006AEA', timer:2000, timerProgressBar:true });
+    cargarTablaUsuarios();
+
+  } catch {
+    Swal.fire({ icon:'error', title:'Sin conexión', text:'No se pudo conectar con el servidor.', confirmButtonColor:'#006AEA' });
+  }
+}
+
+/* =============================================
+   UTILIDADES — Cupos y Categorías
+============================================= */
+function getCupoInfo(act) {
+  const pct = (act.cupoActual / act.cupoMax) * 100;
+  let clase='cupo-ok', estadoLabel='Disponible', estadoClase='estado-disponible';
+  if (pct >= 100) { clase='cupo-lleno'; estadoLabel='Lleno';       estadoClase='estado-lleno'; }
+  else if (pct >= 80) { clase='cupo-alerta'; estadoLabel='Casi lleno'; estadoClase='estado-lleno'; }
+  return { pct, libre: act.cupoMax - act.cupoActual, clase, estadoLabel, estadoClase };
+}
+
+const NOMBRES_CAT = { cultural:'Cultural', deportiva:'Deportiva', tecnologica:'Tecnológica', artistica:'Artística', gastronomica:'Gastronómica', recreativa:'Recreativa' };
+const ICONOS_CAT  = { cultural:'fa-masks-theater', deportiva:'fa-futbol', tecnologica:'fa-laptop-code', artistica:'fa-palette', gastronomica:'fa-utensils', recreativa:'fa-gamepad' };
+const CLASES_CAT  = { cultural:'tag-cultural', deportiva:'tag-deportiva', tecnologica:'tag-tecnologica', artistica:'tag-artistica', gastronomica:'tag-gastronomica', recreativa:'tag-recreativa' };
+
+function getCategoriaTag(cat) {
+  return `<span class="tag ${CLASES_CAT[cat]}"><i class="fa-solid ${ICONOS_CAT[cat]}" aria-hidden="true"></i> ${NOMBRES_CAT[cat]}</span>`;
+}
+
+/* =============================================
+   RENDER — Tarjeta actividad
+============================================= */
+function renderTarjetaActividad(act) {
+  const ci = getCupoInfo(act);
+  return `
+    <div class="col-12 col-md-6 col-lg-4">
+      <article class="tarjeta">
+        <div class="tarjeta-imagen" aria-hidden="true"><i class="fa-solid ${act.icono}"></i></div>
+        <div class="tarjeta-cuerpo">
+          ${getCategoriaTag(act.categoria)}
+          <h3 class="tarjeta-titulo">${act.nombre}</h3>
+          <div class="tarjeta-meta">
+            <span><i class="fa-regular fa-calendar"></i> ${act.fecha}</span>
+            <span><i class="fa-regular fa-clock"></i> ${act.hora}</span>
+            <span><i class="fa-solid fa-location-dot"></i> ${act.lugar}</span>
+          </div>
+          ${ci.pct >= 80 && ci.pct < 100 ? `<div class="alerta-baja-disponibilidad" role="alert"><i class="fa-solid fa-triangle-exclamation"></i> ¡Quedan solo ${ci.libre} cupos!</div>` : ''}
+          <div class="cupo-barra"><div class="cupo-progreso ${ci.clase}" style="width:${Math.min(ci.pct,100)}%"></div></div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span style="font-size:.78rem;color:var(--texto-secundario);">${act.cupoActual}/${act.cupoMax} inscritos</span>
+            <span class="estado-pill ${ci.estadoClase}">${ci.estadoLabel}</span>
+          </div>
+          <button type="button" class="btn btn-primario btn-sm"
+                  data-bs-toggle="modal" data-bs-target="#modalDetalle"
+                  onclick="abrirDetalle(${act.id})">
+            <i class="fa-solid fa-magnifying-glass"></i> Ver detalle
+          </button>
+        </div>
+      </article>
+    </div>`;
+}
+
+function renderDestacadas() {
+  const g = document.getElementById('actividadesDestacadas');
+  if (g) g.innerHTML = ACTIVIDADES.filter(a => a.destacada).slice(0,3).map(renderTarjetaActividad).join('');
+}
+
+/* =============================================
+   MODAL DETALLE ACTIVIDAD
+============================================= */
+function abrirDetalle(id) {
+  const act = ACTIVIDADES.find(a => a.id === id);
+  if (!act) return;
+  const ci = getCupoInfo(act);
+  document.getElementById('modalTag').innerHTML      = getCategoriaTag(act.categoria);
+  document.getElementById('modalTitulo').textContent = act.nombre;
+  document.getElementById('modalEstado').innerHTML   = `<span class="estado-pill ${ci.estadoClase}">${ci.estadoLabel}</span>`;
+  document.getElementById('modalCuerpo').innerHTML   = `
+    <div class="modal-campo"><div class="modal-campo-label">Descripción</div><div class="modal-campo-valor">${act.descripcion}</div></div>
+    <div class="row g-3">
+      <div class="col-6"><div class="modal-campo"><div class="modal-campo-label"><i class="fa-regular fa-calendar"></i> Fecha</div><div class="modal-campo-valor fw-bold">${act.fecha}, 2026</div></div></div>
+      <div class="col-6"><div class="modal-campo"><div class="modal-campo-label"><i class="fa-regular fa-clock"></i> Hora</div><div class="modal-campo-valor fw-bold">${act.hora} hrs</div></div></div>
+      <div class="col-6"><div class="modal-campo"><div class="modal-campo-label"><i class="fa-solid fa-location-dot"></i> Lugar</div><div class="modal-campo-valor fw-bold">${act.lugar}</div></div></div>
+      <div class="col-6"><div class="modal-campo"><div class="modal-campo-label"><i class="fa-solid fa-users"></i> Cupos</div><div class="modal-campo-valor fw-bold">${ci.libre > 0 ? ci.libre + ' disponibles' : 'Agotados'} de ${act.cupoMax}</div></div></div>
+    </div>
+    <div class="modal-campo"><div class="modal-campo-label"><i class="fa-solid fa-clipboard-list"></i> Requisitos</div><div class="modal-campo-valor">${act.requisitos}</div></div>
+    <button type="button" class="btn ${ci.libre > 0 ? 'btn-primario':'btn-acento'} w-100 justify-content-center"
+            data-bs-dismiss="modal"
+            onclick="window.location.href='inscripcion.html?actividad=${act.id}'">
+      ${ci.libre > 0 ? '<i class="fa-solid fa-pen-to-square"></i> Inscribirme' : '<i class="fa-solid fa-list-check"></i> Lista de espera'}
+    </button>`;
+}
+
+/* =============================================
+   RENDER — Agenda
+============================================= */
+const EST_CLS = { disponible:'estado-disponible', lleno:'estado-lleno', cancelado:'estado-cancelado' };
+const EST_ICO = { disponible:'fa-circle-check',   lleno:'fa-circle-exclamation', cancelado:'fa-circle-xmark' };
+const EST_LBL = { disponible:'Disponible',         lleno:'Lleno',                 cancelado:'Cancelado' };
+
+function renderAgenda() {
+  const c = document.getElementById('agendaContenido');
+  if (!c) return;
+  c.innerHTML = AGENDA.map(d => `
+    <div class="agenda-grupo-fecha"><i class="fa-regular fa-calendar-days"></i> ${d.dia}</div>
+    ${d.eventos.map(e => `
+    <div class="agenda-fila">
+      <div class="agenda-hora">${e.hora}</div>
+      <div><div class="agenda-nombre">${e.nombre}</div>
+           <div class="agenda-lugar"><i class="fa-solid fa-location-dot"></i> ${e.lugar}</div></div>
+      <div>${getCategoriaTag(e.categoria)}</div>
+      <div><span class="estado-pill ${EST_CLS[e.estado]}"><i class="fa-solid ${EST_ICO[e.estado]}"></i> ${EST_LBL[e.estado]}</span></div>
+      <div class="admin-controles">
+        <button class="btn btn-secundario btn-sm" onclick="editarEvento('${e.nombre}')"><i class="fa-solid fa-pen"></i></button>
+      </div>
+    </div>`).join('')}`).join('');
+}
+
+/* =============================================
+   FORMULARIO DE INSCRIPCIÓN
+============================================= */
+function poblarSelectActividades() {
+  const sel = document.getElementById('inpActividad');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Seleccioná una actividad —</option>';
+  ACTIVIDADES.forEach(a => {
+    const ci  = getCupoInfo(a);
+    const opt = document.createElement('option');
+    opt.value       = a.id;
+    opt.textContent = ci.pct >= 100 ? `${a.nombre} (Lista de espera)` : `${a.nombre} — ${ci.libre} cupos`;
+    sel.appendChild(opt);
+  });
+  const actId = new URLSearchParams(window.location.search).get('actividad');
+  if (actId) { sel.value = actId; verificarCupoActividad(actId); }
+}
+
+function verificarCupoActividad(id) {
+  const al = document.getElementById('alertaCupo');
+  const tx = document.getElementById('alertaCupoTexto');
+  if (!al || !tx || !id) { if (al) al.style.display='none'; return; }
+  const act = ACTIVIDADES.find(a => a.id == id);
+  if (!act) return;
+  const ci = getCupoInfo(act);
+  if      (ci.pct >= 100) { tx.textContent=`"${act.nombre}" no tiene cupos. Quedás en lista de espera.`; al.style.display='flex'; }
+  else if (ci.pct >= 80)  { tx.textContent=`¡Solo quedan ${ci.libre} cupos para "${act.nombre}"!`;       al.style.display='flex'; }
+  else                    { al.style.display='none'; }
+}
+
+function enviarInscripcion() {
+  const nombre  = document.getElementById('inpNombre').value.trim();
+  const ident   = document.getElementById('inpIdentificacion').value.trim();
+  const correo  = document.getElementById('inpCorreo').value.trim();
+  const tel     = document.getElementById('inpTelefono').value.trim();
+  const carrera = document.getElementById('inpCarrera').value.trim();
+  const actId   = document.getElementById('inpActividad').value;
+  ['inpNombre','inpIdentificacion','inpCorreo','inpTelefono','inpCarrera','inpActividad'].forEach(i => document.getElementById(i)?.classList.remove('is-invalid'));
+  const err = [];
+  if (!nombre)  { err.push('Nombre');         document.getElementById('inpNombre').classList.add('is-invalid'); }
+  if (!ident)   { err.push('Identificación'); document.getElementById('inpIdentificacion').classList.add('is-invalid'); }
+  if (!correo || !correo.includes('@')) { err.push('Correo'); document.getElementById('inpCorreo').classList.add('is-invalid'); }
+  if (!tel)     { err.push('Teléfono');       document.getElementById('inpTelefono').classList.add('is-invalid'); }
+  if (!carrera) { err.push('Carrera');        document.getElementById('inpCarrera').classList.add('is-invalid'); }
+  if (!actId)   { err.push('Actividad');      document.getElementById('inpActividad').classList.add('is-invalid'); }
+  if (err.length) { Swal.fire({ icon:'error', title:'Campos incompletos', html:`<ul style="text-align:left">${err.map(e=>`<li>${e}</li>`).join('')}</ul>`, confirmButtonColor:'#006AEA' }); return; }
+  const act = ACTIVIDADES.find(a => a.id == actId);
+  const ci  = getCupoInfo(act);
+  if (ci.pct >= 100) {
+    Swal.fire({ icon:'info', title:'Lista de Espera', html:`<p><strong>"${act.nombre}"</strong> está llena.</p><p>Te notificamos a <strong>${correo}</strong> si se habilitan cupos.</p>`, confirmButtonColor:'#ffc63e' });
+  } else {
+    Swal.fire({ icon:'success', title:'¡Inscripción Confirmada!', html:`<p>¡Hola, <strong>${nombre}</strong>!</p><p>Inscripción en <strong>"${act.nombre}"</strong> confirmada.</p>`, confirmButtonColor:'#006AEA', confirmButtonText:'Volver al inicio' }).then(r => { if (r.isConfirmed) window.location.href='inicio.html'; });
+    act.cupoActual = Math.min(act.cupoActual + 1, act.cupoMax);
+    poblarSelectActividades();
+  }
+}
+
+/* =============================================
+   PANEL ADMIN — Formularios de Agenda/Actividad
+============================================= */
+function mostrarFormAgenda() {
+  const opDias = AGENDA.map(d=>`<option>${d.dia}</option>`).join('');
+  const opCats = Object.entries(NOMBRES_CAT).map(([v,n])=>`<option value="${v}">${n}</option>`).join('');
+  document.getElementById('modalAdminCuerpo').innerHTML = `
+    <div class="mb-3"><label class="form-label">Nombre del evento <span class="requerido">*</span></label><input class="form-control" /></div>
+    <div class="row g-3 mb-3">
+      <div class="col-6"><label class="form-label">Día <span class="requerido">*</span></label><select class="form-select">${opDias}</select></div>
+      <div class="col-6"><label class="form-label">Hora <span class="requerido">*</span></label><input type="time" class="form-control" /></div>
+    </div>
+    <div class="mb-3"><label class="form-label">Lugar <span class="requerido">*</span></label><input class="form-control" /></div>
+    <div class="mb-3"><label class="form-label">Categoría</label><select class="form-select"><option value="">Seleccioná...</option>${opCats}</select></div>
+    <button type="button" class="btn btn-primario w-100 justify-content-center" onclick="guardadoExitoso('modalAdmin')"><i class="fa-solid fa-floppy-disk"></i> Agregar a Agenda</button>`;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
+}
+
+function mostrarFormActividad() {
+  const opCats = Object.entries(NOMBRES_CAT).map(([v,n])=>`<option value="${v}">${n}</option>`).join('');
+  document.getElementById('modalAdminCuerpo').innerHTML = `
+    <div class="mb-3"><label class="form-label">Nombre <span class="requerido">*</span></label><input class="form-control" /></div>
+    <div class="mb-3"><label class="form-label">Categoría <span class="requerido">*</span></label><select class="form-select"><option value="">Seleccioná...</option>${opCats}</select></div>
+    <div class="row g-3 mb-3">
+      <div class="col-6"><label class="form-label">Fecha <span class="requerido">*</span></label><input type="date" class="form-control" /></div>
+      <div class="col-6"><label class="form-label">Hora <span class="requerido">*</span></label><input type="time" class="form-control" /></div>
+    </div>
+    <div class="mb-3"><label class="form-label">Lugar <span class="requerido">*</span></label><input class="form-control" /></div>
+    <div class="mb-3"><label class="form-label">Cupos máximos <span class="requerido">*</span></label><input type="number" min="1" class="form-control" /></div>
+    <div class="mb-3"><label class="form-label">Descripción</label><textarea class="form-control" rows="3"></textarea></div>
+    <button type="button" class="btn btn-primario w-100 justify-content-center" onclick="guardadoExitoso('modalAdmin')"><i class="fa-solid fa-floppy-disk"></i> Guardar Actividad</button>`;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
+}
+
+function guardadoExitoso(modalId) {
+  bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId)).hide();
+  Swal.fire({ icon:'success', title:'Guardado', text:'El registro fue guardado exitosamente.', confirmButtonColor:'#006AEA', timer:2000, showConfirmButton:false, toast:true, position:'top-end' });
+}
+
+function editarEvento(nombre) {
+  Swal.fire({ icon:'info', title:'Editar Evento', text:`Editando: "${nombre}"`, confirmButtonColor:'#006AEA' });
+}
+
+/* =============================================
+   INICIALIZACIÓN
+============================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  initModoOscuro();
+
+  // renderDestacadas y renderAgenda solo existen en sus páginas
+  // poblarSelectActividades usa #inpActividad de inicio — no confundir con
+  // #inpActividad de inscripcion.html que lo maneja inscripcion.js
+  renderDestacadas();
+  renderAgenda();
+
+  // poblarSelectActividades solo actúa si existe actividadesDestacadas (inicio.html)
+  // En inscripcion.html lo hace poblarSelectInscripcion() de inscripcion.js
+  if (document.getElementById('actividadesDestacadas')) {
+    poblarSelectActividades();
+  }
+
+  // aplicarEstadoSesion dispara _onSesionAdmin / _onSesionVisitante / _onSesionNula
+  // Cada página define esos callbacks en su propio JS antes de este punto
+  aplicarEstadoSesion();
+});
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 async function procesarContacto(event) {
