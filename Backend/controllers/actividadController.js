@@ -1,4 +1,3 @@
-// Importamos el modelo que ya hiciste
 const Actividad = require('../models/Actividad');
 
 // Función para crear una actividad

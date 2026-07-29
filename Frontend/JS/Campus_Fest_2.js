@@ -6,7 +6,7 @@
    Admin: GET  /usuarios | DELETE /usuarios/:id | PUT /usuarios/:id
 ============================================= */
 
-const API_URL = 'http://localhost:3000';
+const API_URL = 'http://localhost:3000/api';
 
 /* =============================================
    DATOS LOCALES — Actividades y Agenda
