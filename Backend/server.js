@@ -5,12 +5,15 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
 
+
 // --- Importación de Rutas ---
 // Verifica que los nombres coincidan exactamente con tus archivos en la carpeta /routes
 const actividadRoutes = require('./routes/actividadRoutes');
 const contactoRoutes = require('./routes/contactoRoutes');
 const inscripcionRoutes = require('./routes/inscripcion.route');
 const usuarioRoutes = require('./routes/usuarioRoutes');
+const faqRoutes = require('./routes/faq.route');
+const standRoutes = require('./routes/stand.route');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +50,8 @@ app.use('/api/actividades', actividadRoutes);
 app.use('/api/contactos', contactoRoutes);
 app.use('/api/inscripciones', inscripcionRoutes);
 app.use('/api/usuarios', usuarioRoutes);
+app.use('/api/faqs', faqRoutes);
+app.use('/api/stands', standRoutes);
 
 // --- Ruta Raíz ---
 // Redirige al inicio del frontend cuando entran a la URL base
