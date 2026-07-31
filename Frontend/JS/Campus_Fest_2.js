@@ -754,110 +754,131 @@ function enviarInscripcion() {
   }
 }
 
-/* =============================================
-   PANEL ADMIN — Formularios de Agenda/Actividad
-============================================= */
-function mostrarFormAgenda() {
-  const opDias = AGENDA.map(d=>`<option>${d.dia}</option>`).join('');
-  const opCats = Object.entries(NOMBRES_CAT).map(([v,n])=>`<option value="${v}">${n}</option>`).join('');
-  document.getElementById('modalAdminCuerpo').innerHTML = `
-    <div class="mb-3"><label class="form-label">Nombre del evento <span class="requerido">*</span></label><input class="form-control" /></div>
-    <div class="row g-3 mb-3">
-      <div class="col-6"><label class="form-label">Día <span class="requerido">*</span></label><select class="form-select">${opDias}</select></div>
-      <div class="col-6"><label class="form-label">Hora <span class="requerido">*</span></label><input type="time" class="form-control" /></div>
-    </div>
-    <div class="mb-3"><label class="form-label">Lugar <span class="requerido">*</span></label><input class="form-control" /></div>
-    <div class="mb-3"><label class="form-label">Categoría</label><select class="form-select"><option value="">Seleccioná...</option>${opCats}</select></div>
-    <button type="button" class="btn btn-primario w-100 justify-content-center" onclick="guardadoExitoso('modalAdmin')"><i class="fa-solid fa-floppy-disk"></i> Agregar a Agenda</button>`;
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
-}
+// ==========================================
+// INICIALIZACIÓN GENERAL AL CARGAR EL DOM
+// ==========================================
+document.addEventListener("DOMContentLoaded", function() {
+  if (document.getElementById("tablaMensajes")) {
+    cargarMensajesAdmin();
+  }
+});
 
-function mostrarFormActividad() {
-  const opCats = Object.entries(NOMBRES_CAT).map(([v,n])=>`<option value="${v}">${n}</option>`).join('');
-  document.getElementById('modalAdminCuerpo').innerHTML = `
-    <div class="mb-3"><label class="form-label">Nombre <span class="requerido">*</span></label><input class="form-control" /></div>
-    <div class="mb-3"><label class="form-label">Categoría <span class="requerido">*</span></label><select class="form-select"><option value="">Seleccioná...</option>${opCats}</select></div>
-    <div class="row g-3 mb-3">
-      <div class="col-6"><label class="form-label">Fecha <span class="requerido">*</span></label><input type="date" class="form-control" /></div>
-      <div class="col-6"><label class="form-label">Hora <span class="requerido">*</span></label><input type="time" class="form-control" /></div>
-    </div>
-    <div class="mb-3"><label class="form-label">Lugar <span class="requerido">*</span></label><input class="form-control" /></div>
-    <div class="mb-3"><label class="form-label">Cupos máximos <span class="requerido">*</span></label><input type="number" min="1" class="form-control" /></div>
-    <div class="mb-3"><label class="form-label">Descripción</label><textarea class="form-control" rows="3"></textarea></div>
-    <button type="button" class="btn btn-primario w-100 justify-content-center" onclick="guardadoExitoso('modalAdmin')"><i class="fa-solid fa-floppy-disk"></i> Guardar Actividad</button>`;
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).show();
-}
+// ==========================================
+// GESTIÓN DE CONTACTO Y SOPORTE (ADMIN)
+// ==========================================
 
-function guardadoExitoso(modalId) {
-  bootstrap.Modal.getOrCreateInstance(document.getElementById(modalId)).hide();
-  Swal.fire({ icon:'success', title:'Guardado', text:'El registro fue guardado exitosamente.', confirmButtonColor:'#006AEA', timer:2000, showConfirmButton:false, toast:true, position:'top-end' });
-}
+document.addEventListener("DOMContentLoaded", function() {
+  if (document.getElementById("tablaMensajes")) {
+    cargarMensajesAdmin();
+  }
+});
 
-function editarEvento(nombre) {
-  Swal.fire({ icon:'info', title:'Editar Evento', text:`Editando: "${nombre}"`, confirmButtonColor:'#006AEA' });
-}
+function procesarContacto(event) {
+  event.preventDefault();
 
-/* =============================================
-   INICIALIZACIÓN
-============================================= */
-document.addEventListener('DOMContentLoaded', () => {
-  initModoOscuro();
+  const nombreInput = document.getElementById("txtNombreContacto");
+  const correoInput = document.getElementById("txtCorreoContacto");
+  const asuntoInput = document.getElementById("txtAsunto");
+  const mensajeInput = document.getElementById("txtMensaje");
 
-  // renderDestacadas y renderAgenda solo existen en sus páginas
-  // poblarSelectActividades usa #inpActividad de inicio — no confundir con
-  // #inpActividad de inscripcion.html que lo maneja inscripcion.js
-  renderDestacadas();
-  renderAgenda();
-
-  // poblarSelectActividades solo actúa si existe actividadesDestacadas (inicio.html)
-  // En inscripcion.html lo hace poblarSelectInscripcion() de inscripcion.js
-  if (document.getElementById('actividadesDestacadas')) {
-    poblarSelectActividades();
+  if (!nombreInput || !correoInput || !asuntoInput || !mensajeInput) {
+    console.error("No se encontraron los elementos del formulario de contacto.");
+    return;
   }
 
-  // aplicarEstadoSesion dispara _onSesionAdmin / _onSesionVisitante / _onSesionNula
-  // Cada página define esos callbacks en su propio JS antes de este punto
-  aplicarEstadoSesion();
-});
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const nombre = nombreInput.value.trim();
+  const correo = correoInput.value.trim();
+  const asunto = asuntoInput.value.trim();
+  const mensaje = mensajeInput.value.trim();
 
-async function procesarContacto(event) {
-    event.preventDefault();
-    const form = document.getElementById('formContacto');
-    
-    // Validación nativa de HTML5/Bootstrap
-    if (!form.checkValidity()) {
-        form.classList.add('was-validated');
-        return;
-    }
+  if (!nombre || !correo || !asunto || !mensaje) {
+    Swal.fire("Campos incompletos", "Por favor completa todos los campos del formulario.", "warning");
+    return;
+  }
 
-    const datosContacto = {
-        nombre: document.getElementById("txtNombreContacto").value,
-        correo: document.getElementById("txtCorreoContacto").value,
-        asunto: document.getElementById("txtAsunto").value,
-        mensaje: document.getElementById("txtMensaje").value
-    };
+  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
+  
+  const nuevoMensaje = {
+    id: Date.now(),
+    nombre,
+    correo,
+    asunto,
+    mensaje
+  };
 
-    try {
-        const response = await fetch("http://localhost:3000/api/contactos", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(datosContacto)
-        });
+  mensajes.push(nuevoMensaje);
+  localStorage.setItem("campusfest_mensajes", JSON.stringify(mensajes));
 
-        if (response.ok) {
-            Swal.fire({
-                title: '¡Éxito!',
-                text: 'Tu mensaje fue enviado y guardado correctamente.',
-                icon: 'success'
-            });
-            form.reset();
-            form.classList.remove('was-validated');
-        } else {
-            const errorData = await response.json();
-            throw new Error(errorData.detalle || "Error al guardar");
-        }
-    } catch (error) {
-        Swal.fire({ title: 'Error', text: error.message, icon: 'error' });
-    }
+  Swal.fire({
+    icon: "success",
+    title: "¡Mensaje enviado!",
+    text: "Tu consulta ha sido enviada con éxito al equipo organizador.",
+    timer: 2000,
+    showConfirmButton: false
+  });
+
+  document.getElementById("formContacto").reset();
+  cargarMensajesAdmin();
+}
+
+function cargarMensajesAdmin() {
+  const tbody = document.getElementById("tablaMensajes");
+  if (!tbody) return;
+
+  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
+
+  // Si no hay mensajes, dejamos la bandeja limpia o cargamos el de prueba inicial
+  tbody.innerHTML = "";
+
+  if (mensajes.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-3">No hay consultas pendientes.</td></tr>`;
+    return;
+  }
+
+  mensajes.forEach((item) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${item.nombre}</td>
+      <td>${item.correo}</td>
+      <td>${item.asunto}</td>
+      <td>${item.mensaje}</td>
+      <td>
+        <button class="btn btn-primario btn-sm py-0 px-2" onclick="responderMensaje(${item.id})">
+          <i class="fa-solid fa-reply"></i> Responder
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function responderMensaje(id) {
+  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
+  const mensajeObj = mensajes.find(m => m.id === id);
+
+  if (!mensajeObj) return;
+
+  const { value: respuesta } = await Swal.fire({
+    title: `Responder a ${mensajeObj.nombre}`,
+    input: 'textarea',
+    inputLabel: `Asunto: "${mensajeObj.asunto}"`,
+    inputPlaceholder: 'Escribe tu respuesta aquí...',
+    showCancelButton: true,
+    confirmButtonText: 'Enviar Respuesta',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#0d6efd'
+  });
+
+  if (respuesta) {
+    mensajes = mensajes.filter(m => m.id !== id);
+    localStorage.setItem("campusfest_mensajes", JSON.stringify(mensajes));
+
+    Swal.fire(
+      '¡Respuesta Enviada!',
+      `La respuesta se ha enviado correctamente a ${mensajeObj.correo}.`,
+      'success'
+    );
+
+    cargarMensajesAdmin();
+  }
 }

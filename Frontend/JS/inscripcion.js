@@ -810,3 +810,129 @@ function _esc(s) { return (s || '').replace(/'/g, "\\'"); }
 document.addEventListener('DOMContentLoaded', () => {
   initInscripcion();
 });
+
+// ==========================================
+// LÓGICA DE CONTACTO Y SOPORTE DINÁMICO
+// ==========================================
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Inicializar la carga de mensajes del administrador si estamos en contacto.html
+  if (document.getElementById("tablaMensajes")) {
+    cargarMensajesAdmin();
+  }
+});
+
+// Procesar y guardar nuevas consultas desde el formulario
+function procesarContacto(event) {
+  event.preventDefault();
+
+  const nombre = document.getElementById("txtNombreContacto").value.trim();
+  const correo = document.getElementById("txtCorreoContacto").value.trim();
+  const asunto = document.getElementById("txtAsunto").value.trim();
+  const mensaje = document.getElementById("txtMensaje").value.trim();
+
+  if (!nombre || !correo || !asunto || !mensaje) {
+    Swal.fire("Campos incompletos", "Por favor completa todos los campos del formulario.", "warning");
+    return;
+  }
+
+  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
+  
+  const nuevoMensaje = {
+    id: Date.now(),
+    nombre,
+    correo,
+    asunto,
+    mensaje
+  };
+
+  mensajes.push(nuevoMensaje);
+  localStorage.setItem("campusfest_mensajes", JSON.stringify(mensajes));
+
+  Swal.fire({
+    icon: "success",
+    title: "¡Mensaje enviado!",
+    text: "Tu consulta ha sido enviada con éxito al equipo organizador.",
+    timer: 2000,
+    showConfirmButton: false
+  });
+
+  document.getElementById("formContacto").reset();
+  cargarMensajesAdmin();
+}
+
+// Cargar dinámicamente las consultas en la tabla del panel administrador
+function cargarMensajesAdmin() {
+  const tbody = document.getElementById("tablaMensajes");
+  if (!tbody) return;
+
+  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
+
+  // Datos base por defecto si la bandeja está vacía
+  if (mensajes.length === 0) {
+    mensajes = [
+      {
+        id: 1,
+        nombre: "Vero Alfaro",
+        correo: "valfaroa@cenfotec.ac.cr",
+        asunto: "Duda con Stand",
+        mensaje: "¿Aún hay espacio para colocar un banner extra en el stand A-10?"
+      }
+    ];
+    localStorage.setItem("campusfest_mensajes", JSON.stringify(mensajes));
+  }
+
+  tbody.innerHTML = "";
+
+  mensajes.forEach((item) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${item.nombre}</td>
+      <td>${item.correo}</td>
+      <td>${item.asunto}</td>
+      <td>${item.mensaje}</td>
+      <td>
+        <button class="btn btn-primario btn-sm py-0 px-2" onclick="responderMensaje(${item.id})">
+          <i class="fa-solid fa-reply"></i> Responder
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Ventana interactiva para que el administrador responda el mensaje
+async function responderMensaje(id) {
+  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
+  const mensajeObj = mensajes.find(m => m.id === id);
+
+  if (!mensajeObj) return;
+
+  const { value: respuesta } = await Swal.fire({
+    title: `Responder a ${mensajeObj.nombre}`,
+    input: 'textarea',
+    inputLabel: `Asunto: "${mensajeObj.asunto}"`,
+    inputPlaceholder: 'Escribe tu respuesta aquí para enviarla al usuario...',
+    inputAttributes: {
+      'aria-label': 'Escribe tu respuesta aquí'
+    },
+    showCancelButton: true,
+    confirmButtonText: 'Enviar Respuesta',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#0d6efd'
+  });
+
+  if (respuesta) {
+    // Remover de pendientes al ser respondido
+    mensajes = mensajes.filter(m => m.id !== id);
+    localStorage.setItem("campusfest_mensajes", JSON.stringify(mensajes));
+
+    Swal.fire(
+      '¡Respuesta Enviada!',
+      `La respuesta se ha enviado correctamente a ${mensajeObj.correo}.`,
+      'success'
+    );
+
+    cargarMensajesAdmin();
+  }
+}
