@@ -8,6 +8,15 @@
 
 const API_URL = 'http://localhost:3000/api';
 
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Carga y aplica el tema oscuro guardado en el localStorage
+    initModoOscuro();
+    
+    // 2. Valida si hay una sesión activa para mantener al usuario logueado en la página
+    aplicarEstadoSesion();
+});
+
+
 /* =============================================
    DATOS LOCALES — Actividades y Agenda
    (no están en MongoDB, se mantienen en JS)
