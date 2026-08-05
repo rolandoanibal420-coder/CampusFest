@@ -3,31 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="CampusFest — Espacio de exhibición y catálogo de stands de proyectos estudiantiles y patrocinadores." />
+  <meta name="description" content="CampusFest 2026 — Espacio de exhibición y catálogo de stands de proyectos estudiantiles y patrocinadores." />
   <title>Stands — CampusFest 2026 — Universidad Cenfotec</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
-  <!-- Bootstrap 5 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-
-  <!-- Font Awesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-  <!-- Hoja de estilos compartida -->
-  <link rel="stylesheet" href="CSS/Campus_Fest_1.css" />
-
-  <!-- SweetAlert2 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="CSS/Campus_Fest_2.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 
 <a class="visually-hidden-focusable" href="#contenido-principal">Saltar al contenido principal</a>
 
-<!-- ==================== BADGE ADMIN ==================== -->
 <div class="badge-admin" id="badgeAdmin" role="status" aria-live="polite">
   <i class="fa-solid fa-gear" aria-hidden="true"></i> Modo Administrador
 </div>
@@ -45,8 +35,9 @@
         </span>
       </a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navLinks"
-              aria-controls="navLinks" aria-expanded="false" aria-label="Abrir menú de navegación">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navLinks" aria-controls="navLinks"
+              aria-expanded="false" aria-label="Abrir menú de navegación">
         <i class="fa-solid fa-bars navbar-toggler-icon-custom" aria-hidden="true"></i>
       </button>
 
@@ -56,23 +47,22 @@
           <li class="nav-item"><a class="nav-link" href="agenda.html"><i class="fa-regular fa-calendar-days" aria-hidden="true"></i> Agenda</a></li>
           <li class="nav-item"><a class="nav-link" href="inscripcion.html"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Inscripción</a></li>
           <li class="nav-item"><a class="nav-link" href="actividades.html"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Actividades</a></li>
-          <li class="nav-item"><a class="nav-link active" href="stands.html" aria-current="page"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Stands</a></li>
+          <li class="nav-item"><a class="nav-link active" href="stands.html" aria-current="page"><i class="fa-solid fa-store" aria-hidden="true"></i> Stands</a></li>
           <li class="nav-item"><a class="nav-link" href="contacto.html"><i class="fa-regular fa-envelope" aria-hidden="true"></i> Contacto</a></li>
         </ul>
 
-        <!-- BOTÓN DE MODO CLARO/OSCURO -->
-        <div class="col-1 d-flex align-items-center justify-content-center text-white gap-1 mb-2 mb-lg-0">
+        <div class="d-flex align-items-center gap-2 me-3">
           <i class="fa-regular fa-sun" aria-hidden="true"></i>
-          <div class="form-check form-switch d-inline-block">
-            <input class="form-check-input" type="checkbox" id="switchModo" aria-label="Cambiar entre modo claro y modo oscuro" />
+          <div class="form-check form-switch d-inline-block mb-0">
+            <input class="form-check-input" type="checkbox" id="switchModo"
+                   aria-label="Cambiar entre modo claro y modo oscuro" />
           </div>
           <i class="fa-regular fa-moon" aria-hidden="true"></i>
         </div>
 
-        <button class="btn-admin-toggle" id="btnAdminToggle"
-                onclick="toggleAdmin()" aria-pressed="false"
-                aria-label="Cambiar a vista administrador">
-          <i class="fa-solid fa-gear" aria-hidden="true"></i> Vista Admin
+        <button id="btnSesion" onclick="abrirModalAuth()"
+                aria-label="Iniciar sesión o registrarse">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Iniciar sesión
         </button>
       </div>
 
@@ -80,140 +70,456 @@
   </nav>
 </header>
 
-<!-- ========================================
-     PÁGINA: CATÁLOGO DE STANDS
-======================================== -->
+<!-- ==================== VISTA VISITANTE ==================== -->
 <main id="contenido-principal" role="main" aria-label="Catálogo de Stands">
-  
   <section class="container py-5">
-    <div class="text-center mb-5">
-      <h1 class="titulo-seccion"><i class="fa-solid fa-store" aria-hidden="true"></i> Showroom & Stands</h1>
-      <p class="subtitulo-seccion">Conoce los proyectos de innovación, comunidades estudiantiles y empresas aliadas presentes en el festival</p>
+
+    <div class="text-center mb-4">
+      <h1 class="titulo-seccion">
+        <i class="fa-solid fa-store" aria-hidden="true"></i> Showroom & Stands
+      </h1>
+      <p class="subtitulo-seccion">
+        Conocé los proyectos de innovación, comunidades estudiantiles
+        y empresas aliadas presentes en el festival
+      </p>
     </div>
 
-    <!-- PANEL ADMINISTRADOR -->
-    <div class="admin-panel mb-4" role="region" aria-label="Panel de administración de stands">
-      <p class="admin-panel-titulo"><i class="fa-solid fa-gear" aria-hidden="true"></i> Panel Administrador</p>
-      <div class="d-flex gap-3 flex-wrap">
-        <button type="button" class="btn btn-acento btn-sm" onclick="Swal.fire('Función de Admin', 'Aquí se abriría el formulario para registrar un nuevo Stand.', 'info')">
-          <i class="fa-solid fa-plus" aria-hidden="true"></i> Agregar Nuevo Stand
+    <!-- Buscador -->
+    <div class="input-group mb-4" style="max-width:400px;">
+      <span class="input-group-text">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+      </span>
+      <input type="text" id="buscarStand" class="form-control"
+             placeholder="Buscar stand por nombre o responsable..."
+             aria-label="Buscar stand" />
+    </div>
+
+    <!-- Filtros de categoría -->
+    <div class="d-flex gap-2 flex-wrap mb-4"
+         role="group" aria-label="Filtrar por categoría">
+      <button type="button"
+              class="btn btn-primario btn-sm btn-filtro-stand"
+              data-cat="todas"
+              onclick="filtrarStandsPorCategoria('')"
+              aria-label="Mostrar todos los stands">
+        Todos
+      </button>
+      <button type="button"
+              class="btn btn-secundario btn-sm btn-filtro-stand"
+              data-cat="cultural"
+              onclick="filtrarStandsPorCategoria('cultural')"
+              aria-label="Filtrar stands culturales">
+        <i class="fa-solid fa-masks-theater" aria-hidden="true"></i> Cultural
+      </button>
+      <button type="button"
+              class="btn btn-secundario btn-sm btn-filtro-stand"
+              data-cat="deportiva"
+              onclick="filtrarStandsPorCategoria('deportiva')"
+              aria-label="Filtrar stands deportivos">
+        <i class="fa-solid fa-futbol" aria-hidden="true"></i> Deportiva
+      </button>
+      <button type="button"
+              class="btn btn-secundario btn-sm btn-filtro-stand"
+              data-cat="tecnologica"
+              onclick="filtrarStandsPorCategoria('tecnologica')"
+              aria-label="Filtrar stands tecnológicos">
+        <i class="fa-solid fa-laptop-code" aria-hidden="true"></i> Tecnológica
+      </button>
+      <button type="button"
+              class="btn btn-secundario btn-sm btn-filtro-stand"
+              data-cat="artistica"
+              onclick="filtrarStandsPorCategoria('artistica')"
+              aria-label="Filtrar stands artísticos">
+        <i class="fa-solid fa-palette" aria-hidden="true"></i> Artística
+      </button>
+      <button type="button"
+              class="btn btn-secundario btn-sm btn-filtro-stand"
+              data-cat="gastronomica"
+              onclick="filtrarStandsPorCategoria('gastronomica')"
+              aria-label="Filtrar stands gastronómicos">
+        <i class="fa-solid fa-utensils" aria-hidden="true"></i> Gastronómica
+      </button>
+      <button type="button"
+              class="btn btn-secundario btn-sm btn-filtro-stand"
+              data-cat="recreativa"
+              onclick="filtrarStandsPorCategoria('recreativa')"
+              aria-label="Filtrar stands recreativos">
+        <i class="fa-solid fa-gamepad" aria-hidden="true"></i> Recreativa
+      </button>
+    </div>
+
+    <!-- Grid de tarjetas — renderizado por stands.js -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
+         id="contenedorStands">
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-3 text-muted">Cargando stands...</p>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ==================== VISTA ADMIN ==================== -->
+<section id="panelStandsAdmin" style="display:none;"
+         class="py-5" aria-label="Panel de administración de stands">
+  <div class="container">
+
+    <!-- Encabezado -->
+    <div class="d-flex align-items-center justify-content-between
+                flex-wrap gap-3 mb-2">
+      <div>
+        <h2 class="titulo-seccion mb-0">
+          <i class="fa-solid fa-store" aria-hidden="true"></i>
+          Gestión de Stands
+        </h2>
+        <p class="subtitulo-seccion mb-0">
+          CampusFest 2026 — Panel Administrador
+        </p>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-acento btn-sm"
+                onclick="abrirModalNuevoStand()"
+                aria-label="Agregar nuevo stand">
+          <i class="fa-solid fa-plus" aria-hidden="true"></i> Nuevo Stand
+        </button>
+        <button class="btn btn-secundario btn-sm"
+                onclick="cargarStandsAdmin()"
+                aria-label="Actualizar lista">
+          <i class="fa-solid fa-rotate-right" aria-hidden="true"></i> Actualizar
         </button>
       </div>
     </div>
 
-    <!-- FILTROS DE CATEGORÍA DE STANDS -->
-    <div class="mb-4 bg-light p-3 rounded-3 border d-flex gap-2 flex-wrap align-items-center" style="background-color: var(--bg-secundario) !important; border-color: var(--borde) !important;">
-      <span class="fw-bold me-2"><i class="fa-solid fa-filter"></i> Clasificación:</span>
-      <button class="btn btn-primario btn-sm">Todos</button>
-      <button class="btn btn-secundario btn-sm">Proyecto Académico</button>
-      <button class="btn btn-secundario btn-sm">Patrocinador</button>
-      <button class="btn btn-secundario btn-sm">Comunidad</button>
+    <!-- Tarjetas de resumen -->
+    <div class="row g-3 mb-4 mt-1">
+      <div class="col-6 col-md-4">
+        <div class="stat-card">
+          <div class="stat-numero text-primary" id="resumenStTotal">—</div>
+          <div class="stat-label">Total stands</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="stat-card">
+          <div class="stat-numero" style="color:var(--verde);"
+               id="resumenStActivos">—</div>
+          <div class="stat-label">Activos</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4">
+        <div class="stat-card">
+          <div class="stat-numero" style="color:var(--rojo);"
+               id="resumenStCancelados">—</div>
+          <div class="stat-label">Cancelados</div>
+        </div>
+      </div>
     </div>
 
-    <!-- GRILLA DE TARJETAS DE STANDS -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4" id="contenedorStands">
-      
-      <!-- Stand 1: Proyecto Académico -->
-      <div class="col">
-        <article class="tarjeta">
-          <div class="tarjeta-imagen">
-            <i class="fa-solid fa-microchip" aria-hidden="true"></i>
-          </div>
-          <div class="tarjeta-cuerpo">
-            <span class="tag tag-tecnologica"><i class="fa-solid fa-graduation-cap"></i> Proyecto Académico</span>
-            <h2 class="tarjeta-titulo">Detección de Plagas con IoT</h2>
-            
-            <div class="tarjeta-meta">
-              <span><i class="fa-solid fa-users"></i> Grupo Desarrollador 3</span>
-              <span><i class="fa-solid fa-map-pin"></i> Stand A-10 (Pasillo Norte)</span>
-            </div>
+    <!-- Tabla de stands -->
+    <div class="tarjeta p-0 overflow-hidden">
 
-            <p class="mt-2 text-muted" style="font-size: 0.9rem; line-height: 1.4;">
-              Prototipo funcional utilizando sensores de humedad y cámaras con visión computacional para entornos agrícolas automatizados.
-            </p>
-
-            <div class="d-flex justify-content-end align-items-center mt-3 border-top pt-2" style="border-color: var(--borde) !important;">
-              <button class="btn btn-primario btn-sm" onclick="verDetalleStand('Detección de Plagas con IoT', 'Stand A-10 (Pasillo Norte)', 'Grupo Desarrollador 3', 'Sistema de hardware libre para el monitoreo en tiempo real de cultivos.')">Ver Detalles</button>
-            </div>
-          </div>
-        </article>
+      <!-- Barra de filtros admin -->
+      <div class="p-3 border-bottom d-flex gap-2 flex-wrap align-items-center"
+           style="background:var(--bg-secundario);">
+        <div class="input-group" style="max-width:280px;">
+          <span class="input-group-text"
+                style="background:var(--bg-tarjeta);border-color:var(--borde);">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          </span>
+          <input type="text" id="buscarStandAdmin" class="form-control"
+                 placeholder="Buscar por nombre o responsable..."
+                 aria-label="Buscar stand" />
+        </div>
+        <select class="form-select" style="max-width:180px;"
+                onchange="filtrarStandsPorCategoria(this.value)"
+                aria-label="Filtrar por categoría">
+          <option value="">Todas las categorías</option>
+          <option value="cultural">Cultural</option>
+          <option value="deportiva">Deportiva</option>
+          <option value="tecnologica">Tecnológica</option>
+          <option value="artistica">Artística</option>
+          <option value="gastronomica">Gastronómica</option>
+          <option value="recreativa">Recreativa</option>
+        </select>
       </div>
 
-      <!-- Stand 2: Patrocinador -->
-      <div class="col">
-        <article class="tarjeta">
-          <div class="tarjeta-imagen">
-            <i class="fa-solid fa-building" aria-hidden="true"></i>
-          </div>
-          <div class="tarjeta-cuerpo">
-            <span class="tag tag-gastronomica" style="background-color: #6f42c1 !important;"><i class="fa-solid fa-briefcase"></i> Patrocinador Gold</span>
-            <h2 class="tarjeta-titulo">TechSolutions Costa Rica</h2>
-            
-            <div class="tarjeta-meta">
-              <span><i class="fa-solid fa-building"></i> División de Reclutamiento</span>
-              <span><i class="fa-solid fa-map-pin"></i> Stand B-02 (Pabellón Central)</span>
-            </div>
-
-            <p class="mt-2 text-muted" style="font-size: 0.9rem; line-height: 1.4;">
-              Revisión de CVs en vivo, simulación de entrevistas técnicas de desarrollo de software y entrega de swag oficial de la marca.
-            </p>
-
-            <div class="d-flex justify-content-end align-items-center mt-3 border-top pt-2" style="border-color: var(--borde) !important;">
-              <button class="btn btn-primario btn-sm" onclick="verDetalleStand('TechSolutions Costa Rica', 'Stand B-02 (Pabellón Central)', 'División de Reclutamiento', 'Stands de reclutamiento activo para puestos de pasantías y Junior Developers.')">Ver Detalles</button>
-            </div>
-          </div>
-        </article>
+      <!-- Tabla responsive -->
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0"
+               aria-label="Tabla de stands">
+          <thead>
+            <tr style="background:var(--azul-oscuro);color:white;">
+              <th scope="col" class="ps-3">Nombre</th>
+              <th scope="col">Responsable</th>
+              <th scope="col">Ubicación</th>
+              <th scope="col">Categoría</th>
+              <th scope="col" class="text-center">Estado</th>
+              <th scope="col" class="text-center pe-3">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaStandsCuerpo">
+            <tr>
+              <td colspan="6" class="text-center py-5 text-muted">
+                <i class="fa-solid fa-circle-notch fa-spin fa-2x mb-2 d-block"></i>
+                Conectando con MongoDB...
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <!-- Stand 3: Comunidad -->
-      <div class="col">
-        <article class="tarjeta">
-          <div class="tarjeta-imagen">
-            <i class="fa-solid fa-gamepad" aria-hidden="true"></i>
-          </div>
-          <div class="tarjeta-cuerpo">
-            <span class="tag tag-deportiva"><i class="fa-solid fa-headset"></i> Comunidad</span>
-            <h2 class="tarjeta-titulo">Club de Gaming & Esports</h2>
-            
-            <div class="tarjeta-meta">
-              <span><i class="fa-solid fa-gamepad"></i> Vida Estudiantil</span>
-              <span><i class="fa-solid fa-map-pin"></i> Stand C-05 (Zona Recreativa)</span>
-            </div>
+      <!-- Pie de tabla -->
+      <div class="p-3 border-top d-flex justify-content-between
+                  align-items-center flex-wrap gap-2"
+           style="background:var(--bg-secundario);font-size:.82rem;
+                  color:var(--texto-secundario);">
+        <span>
+          <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+          El botón <i class="fa-solid fa-trash"></i> elimina el stand
+          permanentemente de MongoDB.
+        </span>
+        <span id="tablaStandsInfo"></span>
+      </div>
 
-            <p class="mt-2 text-muted" style="font-size: 0.9rem; line-height: 1.4;">
-              Inscripciones para los torneos internos, exhibición de consolas retro y retas rápidas de juegos de pelea y cartas coleccionables.
-            </p>
+    </div><!-- /tarjeta tabla -->
+  </div>
+</section>
 
-            <div class="d-flex justify-content-end align-items-center mt-3 border-top pt-2" style="border-color: var(--borde) !important;">
-              <button class="btn btn-primario btn-sm" onclick="verDetalleStand('Club de Gaming & Esports', 'Stand C-05 (Zona Recreativa)', 'Vida Estudiantil', 'Espacio dedicado al entretenimiento, reclutamiento del equipo universitario y torneos flash.')">Ver Detalles</button>
+<!-- ============================================================
+     MODAL AUTH — Login / Registro
+============================================================ -->
+<div class="modal fade" id="modalAuth" tabindex="-1"
+     aria-labelledby="modalAuthTitulo" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+       style="max-width:480px;">
+    <div class="modal-content">
+
+      <div class="auth-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Cerrar"></button>
+        <div class="auth-logo" aria-hidden="true">CF</div>
+        <h2 class="auth-titulo" id="modalAuthTitulo">CampusFest 2026</h2>
+        <p class="auth-subtitulo">Universidad Cenfotec</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab activo" id="tabLogin" role="tab"
+                aria-selected="true" aria-controls="panelLogin"
+                onclick="cambiarTab('login')">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+          Iniciar sesión
+        </button>
+        <button class="auth-tab" id="tabRegistro" role="tab"
+                aria-selected="false" aria-controls="panelRegistro"
+                onclick="cambiarTab('registro')">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          Registrarse
+        </button>
+      </div>
+
+      <!-- Panel Login -->
+      <div id="panelLogin" class="auth-panel activo" role="tabpanel"
+           aria-labelledby="tabLogin">
+        <div class="mb-3">
+          <label class="form-label" for="loginCedula">
+            Cédula / Identificación <span class="requerido">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+            </span>
+            <input type="text" id="loginCedula" class="form-control"
+                   placeholder="Ej: 1-1234-5678" aria-required="true" />
+          </div>
+        </div>
+        <div class="mb-1">
+          <label class="form-label" for="loginCorreo">
+            Correo electrónico <span class="requerido">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+            </span>
+            <input type="email" id="loginCorreo" class="form-control"
+                   placeholder="su.correo@dominio.com"
+                   oninput="mostrarHintLogin(this.value)"
+                   aria-required="true" />
+          </div>
+          <p class="dominio-hint dominio-no" id="loginDominioHint"
+             aria-live="polite"></p>
+        </div>
+        <div class="mb-4 mt-3">
+          <button type="button"
+                  class="btn btn-primario w-100 py-2 justify-content-center"
+                  onclick="procesarLogin()">
+            <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+            Ingresar
+          </button>
+        </div>
+        <p class="text-center"
+           style="font-size:.82rem;color:var(--texto-secundario);">
+          ¿Aún no tenés cuenta?
+          <button type="button" class="btn btn-link p-0"
+                  style="font-size:.82rem;vertical-align:baseline;"
+                  onclick="cambiarTab('registro')">Registrate aquí</button>
+        </p>
+      </div>
+
+      <!-- Panel Registro -->
+      <div id="panelRegistro" class="auth-panel" role="tabpanel"
+           aria-labelledby="tabRegistro">
+        <div class="row g-3 mb-2">
+          <div class="col-12">
+            <label class="form-label" for="regNombre">
+              Nombre completo <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fa-solid fa-user" aria-hidden="true"></i>
+              </span>
+              <input type="text" id="regNombre" class="form-control"
+                     placeholder="Ej: María González"
+                     autocomplete="name" aria-required="true" />
             </div>
           </div>
-        </article>
+          <div class="col-md-6">
+            <label class="form-label" for="regCedula">
+              Identificación <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+              </span>
+              <input type="text" id="regCedula" class="form-control"
+                     placeholder="1-1234-5678" aria-required="true" />
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label" for="regTelefono">
+              Teléfono <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+              </span>
+              <input type="tel" id="regTelefono" class="form-control"
+                     placeholder="8888-8888" autocomplete="tel"
+                     aria-required="true" />
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="regCarrera">
+              Carrera <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+              </span>
+              <input type="text" id="regCarrera" class="form-control"
+                     placeholder="Ej: Ingeniería en Sistemas"
+                     aria-required="true" />
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label" for="regCorreo">
+              Correo electrónico <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text">
+                <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+              </span>
+              <input type="email" id="regCorreo" class="form-control"
+                     placeholder="su.correo@dominio.com"
+                     oninput="mostrarHintRegistro(this.value)"
+                     aria-required="true" />
+            </div>
+            <p class="dominio-hint dominio-no" id="regDominioHint"
+               aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="mb-4">
+          <button type="button"
+                  class="btn btn-primario w-100 py-2 justify-content-center"
+                  onclick="procesarRegistro()">
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+            Crear cuenta
+          </button>
+        </div>
+        <p class="text-center"
+           style="font-size:.82rem;color:var(--texto-secundario);">
+          ¿Ya tenés cuenta?
+          <button type="button" class="btn btn-link p-0"
+                  style="font-size:.82rem;vertical-align:baseline;"
+                  onclick="cambiarTab('login')">Iniciá sesión</button>
+        </p>
       </div>
 
     </div>
-  </section>
+  </div>
+</div>
 
-</main>
+<!-- MODAL: Detalle del stand -->
+<div class="modal fade" id="modalDetalle" tabindex="-1"
+     aria-labelledby="modalTitulo" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header-campus">
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Cerrar detalle"></button>
+        <div id="modalTag"></div>
+        <h2 class="text-white fw-bold mt-2" id="modalTitulo"
+            style="font-family:var(--font-titulo);font-size:1.8rem;"></h2>
+        <div id="modalEstado" class="mt-2"></div>
+      </div>
+      <div class="modal-body p-4" id="modalCuerpo"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nuevo / Editar Stand (admin) -->
+<div class="modal fade" id="modalAdmin" tabindex="-1"
+     aria-labelledby="modalAdminTitulo" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg
+              modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header-campus">
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                aria-label="Cerrar formulario"></button>
+        <h2 class="text-white fw-bold" id="modalAdminTitulo"
+            style="font-family:var(--font-titulo);font-size:1.5rem;">
+          <i class="fa-solid fa-store" aria-hidden="true"></i>
+          Gestión de Stand
+        </h2>
+      </div>
+      <div class="modal-body p-4" id="modalAdminCuerpo"></div>
+    </div>
+  </div>
+</div>
 
 <!-- ==================== FOOTER ==================== -->
 <footer role="contentinfo">
   <div class="container">
-    <div class="row g-4 mb-4">
-      <div class="col-md-6 col-lg-5">
+    <div class="row g-4 mb-4 align-items-center">
+      <div class="col-12 col-md-4 text-center text-md-start">
         <div class="footer-marca">CampusFest</div>
-
-        <img src="assets/imgs/Cenfotec.png" alt="Logo Universidad Cenfotec" class="footer-logo" />
-
-        <p class="footer-copy">© 2026 Universidad Cenfotec </p>
+        <p class="footer-copy mb-0">© 2026 Universidad Cenfotec</p>
+        <p class="footer-copy mt-1">Somos lo que sabemos</p>
       </div>
-      <div class="col-6 col-lg-3"></div>
-      <div class="col-6 col-lg-4">
+      <div class="col-12 col-md-4 text-center">
+        <img src="imgs/banner_campusfest.png"
+             alt="CampusFest 2026 — Universidad Cenfotec"
+             style="width:100%;max-width:280px;border-radius:var(--radio-grande);
+                    object-fit:cover;box-shadow:0 4px 20px rgba(0,0,0,0.35);" />
+      </div>
+      <div class="col-12 col-md-4 text-center text-md-start">
         <p class="footer-titulo">Contacto</p>
-        <p class="footer-contacto">
-          Para consultas, sugerencias o información adicional, contáctanos a través de los siguientes medios:<br><br>
-          <i class="fa-regular fa-envelope" aria-hidden="true"></i> campusfest@cenfotec.ac.cr<br>
-          <i class="fa-solid fa-phone" aria-hidden="true"></i> +506 2253-3456
+        <p class="footer-contacto mb-0">
+          Para consultas, sugerencias o información adicional,
+          contáctanos a través de los siguientes medios:<br><br>
+          <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+          campusfest@cenfotec.ac.cr<br>
+          <i class="fa-solid fa-phone" aria-hidden="true"></i>
+          +506 2253-3456
         </p>
       </div>
     </div>
@@ -221,25 +527,12 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!--
+  ORDEN DE CARGA:
+  1. Campus_Fest_2.js → expone API_URL, getSesion, aplicarEstadoSesion, auth
+  2. stands.js        → define _onSesionAdmin/Visitante/Nula y la lógica de stands
+-->
 <script src="JS/Campus_Fest_2.js"></script>
-
-<script>
-  function verDetalleStand(titulo, ubicacion, encargado, desc) {
-    Swal.fire({
-      title: `<span style="font-family: var(--font-titulo); font-weight:700;">${titulo}</span>`,
-      html: `
-        <div class="text-start" style="font-family: var(--font-cuerpo); font-size:0.95rem;">
-          <p class="mb-2"><strong><i class="fa-solid fa-map-pin text-danger"></i> Ubicación:</strong> ${ubicacion}</p>
-          <p class="mb-2"><strong><i class="fa-solid fa-user"></i> Organiza:</strong> ${encargado}</p>
-          <hr style="border-color: var(--borde);">
-          <p class="mb-0">${desc}</p>
-        </div>
-      `,
-      icon: 'info',
-      confirmButtonText: 'Entendido',
-      confirmButtonColor: 'var(--color-acento)'
-    });
-  }
-</script>
+<script src="JS/Stands.js"></script>
 </body>
 </html>

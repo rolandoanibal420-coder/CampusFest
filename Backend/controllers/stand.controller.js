@@ -1,3 +1,4 @@
+/*
 const Stand = require('../models/stand.model');
 
 // Obtener todos los stands
@@ -60,3 +61,4 @@ exports.eliminarStand = (req, res) => {
             detalle: error.message 
         }));
 };
+*/
