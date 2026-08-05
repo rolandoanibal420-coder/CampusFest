@@ -3,6 +3,7 @@
    Universidad Cenfotec
    Variables de diseño según Libro de Marca 2022
    Compatible con Bootstrap 5 + Font Awesome 6
+   (Archivo combinado y depurado — sin reglas duplicadas)
 ============================================= */
 
 :root {
@@ -86,6 +87,30 @@ body.modo-oscuro .tag-recreativa   { background: #2a1a3a; color: #b07ad0; }
 body.modo-oscuro .estado-disponible { background: #1a3a1a; color: #7dca7a; }
 body.modo-oscuro .estado-lleno      { background: #3a2a00; color: var(--amarillo-dorado); }
 body.modo-oscuro .estado-cancelado  { background: #3a1a1a; color: #f07070; }
+
+/* Modo oscuro — Input group (lupa + buscadores) */
+body.modo-oscuro .input-group-text {
+  background: var(--bg-secundario);
+  border-color: var(--borde);
+  color: white; /* lupa en blanco */
+}
+
+body.modo-oscuro .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.45); /* placeholder visible pero suave */
+}
+
+body.modo-oscuro .form-control {
+  background: var(--bg-secundario);
+  border-color: var(--borde);
+  color: var(--texto-principal); /* texto escrito en blanco */
+}
+
+body.modo-oscuro .form-control:focus {
+  background: var(--bg-secundario);
+  border-color: var(--azul-claro);
+  color: var(--texto-principal);
+  box-shadow: 0 0 0 3px rgba(156, 200, 255, 0.15);
+}
 
 /* =============================================
    RESET LIGERO Y BASE
@@ -263,6 +288,36 @@ textarea:focus-visible,
 .navbar-toggler-icon-custom {
   color: white;
   font-size: 1.3rem;
+}
+
+/* Botón de sesión en la navbar */
+#btnSesion {
+  padding: 0.45rem 1rem;
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-cuerpo);
+  white-space: nowrap;
+}
+
+#btnSesion:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: white;
+}
+
+#btnSesion.sesion-activa {
+  border-color: var(--amarillo-dorado);
+  color: var(--amarillo-dorado);
+}
+
+#btnSesion.sesion-activa:hover {
+  background: var(--amarillo-dorado);
+  color: var(--azul-oscuro);
 }
 
 /* =============================================
@@ -883,11 +938,15 @@ footer {
   margin-top: 4rem;
 }
 
+footer .row {
+  align-items: center;
+}
+
 .footer-titulo {
   font-family: var(--font-titulo);
   font-size: 1.1rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  margin-bottom: 15px;
   color: var(--azul-claro);
 }
 
@@ -948,6 +1007,25 @@ footer {
   gap: 0.5rem;
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.5);
+}
+
+.footer-logo {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+}
+
+.footer-banner {
+  max-width: 320px;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+}
+
+.img-fluid-campusfest {
+  max-width: 95%;
+  height: auto;
+  border-radius: 16px;
 }
 
 /* =============================================
@@ -1095,64 +1173,6 @@ footer {
   display: block;
 }
 
-/* =============================================
-   MODO OSCURO — Input group (lupa + buscadores)
-   Afecta los buscadores de inicio.html e
-   inscripcion.html en modo oscuro
-============================================= */
-body.modo-oscuro .input-group-text {
-  background: var(--bg-secundario);
-  border-color: var(--borde);
-  color: white;                      /* lupa en blanco */
-}
-
-body.modo-oscuro .form-control::placeholder {
-  color: rgba(255, 255, 255, 0.45);  /* placeholder visible pero suave */
-}
-
-body.modo-oscuro .form-control {
-  background: var(--bg-secundario);
-  border-color: var(--borde);
-  color: var(--texto-principal);     /* texto escrito en blanco */
-}
-
-body.modo-oscuro .form-control:focus {
-  background: var(--bg-secundario);
-  border-color: var(--azul-claro);
-  color: var(--texto-principal);
-  box-shadow: 0 0 0 3px rgba(156, 200, 255, 0.15);
-}
-
-/* Botón de sesión en la navbar */
-#btnSesion {
-  padding: 0.45rem 1rem;
-  border-radius: 50px;
-  font-size: 0.82rem;
-  font-weight: 700;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  background: transparent;
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: var(--font-cuerpo);
-  white-space: nowrap;
-}
-
-#btnSesion:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: white;
-}
-
-#btnSesion.sesion-activa {
-  border-color: var(--amarillo-dorado);
-  color: var(--amarillo-dorado);
-}
-
-#btnSesion.sesion-activa:hover {
-  background: var(--amarillo-dorado);
-  color: var(--azul-oscuro);
-}
-
 /* Hint de dominio institucional */
 .dominio-hint {
   font-size: 0.75rem;
@@ -1161,36 +1181,3 @@ body.modo-oscuro .form-control:focus {
 
 .dominio-no    { color: var(--gris-medio); }
 .dominio-admin { color: var(--verde); }
-
-.footer-logo{
-    max-width:220px;
-    width:100%;
-    height:auto;
-}
-
-.footer-banner{
-    max-width:320px;
-    width:100%;
-    height:auto;
-    border-radius:16px;
-    
-}
-
-.footer-titulo{
-    font-weight:700;
-    margin-bottom:15px;
-}
-
-.footer-contacto{
-    line-height:1.8;
-}
-
-footer .row{
-    align-items:center;
-}
-
-.img-fluid-campusfest{
-    max-width:95%;
-    height:auto;
-    border-radius:16px;
-}
