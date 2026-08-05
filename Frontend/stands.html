@@ -64,6 +64,12 @@
                 aria-label="Iniciar sesión o registrarse">
           <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Iniciar sesión
         </button>
+
+        <!-- Botón de sesión agregado para mantener el estandar con las demás páginas -->
+        <button id="btnSesion" onclick="abrirModalAuth()"
+                aria-label="Iniciar sesión o registrarse" class="ms-lg-3 mt-2 mt-lg-0">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Iniciar sesión
+        </button>
       </div>
 
     </div>
@@ -492,6 +498,157 @@
         </h2>
       </div>
       <div class="modal-body p-4" id="modalAdminCuerpo"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MODAL AUTH — Login / Registro (Añadido para control global)
+============================================================ -->
+<div class="modal fade" id="modalAuth" tabindex="-1"
+     aria-labelledby="modalAuthTitulo" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:480px;">
+    <div class="modal-content">
+
+      <div class="auth-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <div class="auth-logo" aria-hidden="true">CF</div>
+        <h2 class="auth-titulo" id="modalAuthTitulo">CampusFest 2026</h2>
+        <p class="auth-subtitulo">Universidad Cenfotec</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab activo" id="tabLogin" role="tab"
+                aria-selected="true" aria-controls="panelLogin"
+                onclick="cambiarTab('login')">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Iniciar sesión
+        </button>
+        <button class="auth-tab" id="tabRegistro" role="tab"
+                aria-selected="false" aria-controls="panelRegistro"
+                onclick="cambiarTab('registro')">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Registrarse
+        </button>
+      </div>
+
+      <!-- Panel Login -->
+      <div id="panelLogin" class="auth-panel activo" role="tabpanel" aria-labelledby="tabLogin">
+        <div class="mb-3">
+          <label class="form-label" for="loginCedula">
+            Cédula / Identificación <span class="requerido">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
+            <input type="text" id="loginCedula" class="form-control"
+                   placeholder="Ej: 1-1234-5678" aria-required="true" />
+          </div>
+        </div>
+
+        <div class="mb-1">
+          <label class="form-label" for="loginCorreo">
+            Correo electrónico <span class="requerido">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span>
+            <input type="email" id="loginCorreo" class="form-control"
+                   placeholder="su.correo@dominio.com"
+                   oninput="mostrarHintLogin(this.value)"
+                   aria-required="true" />
+          </div>
+          <p class="dominio-hint dominio-no" id="loginDominioHint" aria-live="polite"></p>
+        </div>
+
+        <div class="mb-4 mt-3">
+          <button type="button" class="btn btn-primario w-100 py-2 justify-content-center"
+                  onclick="procesarLogin()">
+            <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Ingresar
+          </button>
+        </div>
+
+        <p class="text-center" style="font-size:.82rem;color:var(--texto-secundario);">
+          ¿Aún no tenés cuenta?
+          <button type="button" class="btn btn-link p-0"
+                  style="font-size:.82rem;vertical-align:baseline;"
+                  onclick="cambiarTab('registro')">Registrate aquí</button>
+        </p>
+      </div>
+
+      <!-- Panel Registro -->
+      <div id="panelRegistro" class="auth-panel" role="tabpanel" aria-labelledby="tabRegistro">
+        <div class="row g-3 mb-2">
+          <div class="col-12">
+            <label class="form-label" for="regNombre">
+              Nombre completo <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
+              <input type="text" id="regNombre" class="form-control"
+                     placeholder="Ej: María González" autocomplete="name" aria-required="true" />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="regCedula">
+              Identificación <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
+              <input type="text" id="regCedula" class="form-control"
+                     placeholder="1-1234-5678" aria-required="true" />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="regTelefono">
+              Teléfono <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
+              <input type="tel" id="regTelefono" class="form-control"
+                     placeholder="8888-8888" autocomplete="tel" aria-required="true" />
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="regCarrera">
+              Carrera <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span>
+              <input type="text" id="regCarrera" class="form-control"
+                     placeholder="Ej: Ingeniería en Sistemas" aria-required="true" />
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="regCorreo">
+              Correo electrónico <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span>
+              <input type="email" id="regCorreo" class="form-control"
+                     placeholder="su.correo@dominio.com"
+                     oninput="mostrarHintRegistro(this.value)"
+                     aria-required="true" />
+            </div>
+            <p class="dominio-hint dominio-no" id="regDominioHint" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <button type="button" class="btn btn-primario w-100 py-2 justify-content-center"
+                  onclick="procesarRegistro()">
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Crear cuenta
+          </button>
+        </div>
+
+        <p class="text-center" style="font-size:.82rem;color:var(--texto-secundario);">
+          ¿Ya tenés cuenta?
+          <button type="button" class="btn btn-link p-0"
+                  style="font-size:.82rem;vertical-align:baseline;"
+                  onclick="cambiarTab('login')">Iniciá sesión</button>
+        </p>
+      </div>
+
     </div>
   </div>
 </div>

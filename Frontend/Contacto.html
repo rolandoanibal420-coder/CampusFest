@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="CampusFest — Formulario de contacto y soporte para el festival estudiantil." />
-  <title>Contacto — CampusFest 2026 — Universidad Cenfotec</title>
+  <meta name="description" content="CampusFest — Formulario de contacto, soporte y preguntas frecuentes para el festival estudiantil." />
+  <title>Contacto y FAQ — CampusFest 2026 — Universidad Cenfotec</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -74,6 +74,11 @@
                 aria-label="Cambiar a vista administrador">
           <i class="fa-solid fa-gear" aria-hidden="true"></i> Vista Admin
         </button>
+
+        <button id="btnSesion" onclick="abrirModalAuth()"
+                aria-label="Iniciar sesión o registrarse" class="ms-lg-3 mt-2 mt-lg-0">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Iniciar sesión
+        </button>
       </div>
 
     </div>
@@ -81,19 +86,19 @@
 </header>
 
 <!-- ========================================
-     PÁGINA: CONTACTO / SOPORTE
+     PÁGINA: CONTACTO / FAQ / SOPORTE
 ======================================== -->
-<main id="contenido-principal" role="main" aria-label="Formulario de Contacto">
+<main id="contenido-principal" role="main" aria-label="Contacto y Preguntas Frecuentes">
   
   <section class="container py-5">
     <div class="text-center mb-5">
-      <h1 class="titulo-seccion"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Canales de Comunicación</h1>
-      <p class="subtitulo-seccion">¿Tienes alguna duda o inconveniente con el festival? Escríbenos directamente</p>
+      <h1 class="titulo-seccion"><i class="fa-solid fa-envelope" aria-hidden="true"></i> Soporte y Comunicación</h1>
+      <p class="subtitulo-seccion">Encuentra respuestas rápidas en nuestras FAQ o envíanos tu consulta directamente</p>
     </div>
 
-    <!-- PANEL ADMINISTRADOR (Mensajes Recibidos) -->
-    <div class="admin-panel mb-4" role="region" aria-label="Panel de administración de mensajes">
-      <p class="admin-panel-titulo"><i class="fa-solid fa-gear" aria-hidden="true"></i> Panel Administrador — Bandeja de Entrada</p>
+    <!-- PANEL ADMINISTRADOR (Mensajes Recibidos y Gestión) -->
+    <div class="admin-panel mb-5" role="region" aria-label="Panel de administración de mensajes">
+      <p class="admin-panel-titulo"><i class="fa-solid fa-gear" aria-hidden="true"></i> Panel Administrador — Bandeja de Entrada de Consultas</p>
       <div class="table-responsive bg-dark rounded p-2">
         <table class="table table-dark table-striped table-hover mb-0 align-middle text-start" style="font-size: 0.9rem;">
           <thead>
@@ -106,71 +111,271 @@
             </tr>
           </thead>
           <tbody id="tablaMensajes">
-            <tr>
-              <td>Vero Alfaro</td>
-              <td>valfaroa@cenfotec.ac.cr</td>
-              <td>Duda con Stand</td>
-              <td>¿Aún hay espacio para colocar un banner extra en el stand A-10?</td>
-              <td>
-                <button class="btn btn-primario btn-sm py-0 px-2" onclick="Swal.fire('Responder', 'Función para abrir gestor de correo.', 'info')"><i class="fa-solid fa-reply"></i></button>
-              </td>
-            </tr>
+            <!-- Se llenará dinámicamente desde Campus_Fest_2.js -->
           </tbody>
         </table>
       </div>
     </div>
 
-    <div class="row g-4 justify-content-center">
-      <div class="col-lg-8">
-        <div class="card p-4 shadow-sm" style="background-color: var(--bg-card); border: 1px solid var(--borde); color: var(--texto-principal);">
+    <div class="row g-5">
+      
+      <!-- SECCIÓN FAQ (Preguntas Frecuentes) -->
+      <div class="col-lg-6">
+        <div class="card p-4 shadow-sm h-100" style="background-color: var(--bg-card); border: 1px solid var(--borde); color: var(--texto-principal);">
+          <h2 class="h4 mb-4" style="font-family: var(--font-titulo); font-weight: 700;">
+            <i class="fa-solid fa-circle-question text-warning"></i> Preguntas Frecuentes (FAQ)
+          </h2>
+
+          <div class="accordion" id="accordionFAQ">
+            <div class="accordion-item mb-2" style="background-color: var(--bg-secundario); border-color: var(--borde);">
+              <h3 class="accordion-header" id="headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne" style="background-color: var(--bg-secundario); color: var(--texto-principal);">
+                  ¿Tiene algún costo de inscripción asistir al CampusFest?
+                </button>
+              </h3>
+              <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionFAQ">
+                <div class="accordion-body" style="font-size: 0.9rem; color: var(--texto-secundario);">
+                  No, la entrada a todas las charlas, talleres y exhibiciones del CampusFest 2026 es completamente gratuita para estudiantes y público general registrado.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item mb-2" style="background-color: var(--bg-secundario); border-color: var(--borde);">
+              <h3 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" style="background-color: var(--bg-secundario); color: var(--texto-principal);">
+                  ¿Cómo puedo registrar mi propio proyecto o stand?
+                </button>
+              </h3>
+              <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionFAQ">
+                <div class="accordion-body" style="font-size: 0.9rem; color: var(--texto-secundario);">
+                  Puedes activar el "Modo Administrador" desde la barra superior o contactar directamente a la coordinación mediante este formulario.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item mb-2" style="background-color: var(--bg-secundario); border-color: var(--borde);">
+              <h3 class="accordion-header" id="headingThree">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree" style="background-color: var(--bg-secundario); color: var(--texto-principal);">
+                  ¿Se brindarán certificados de participación?
+                </button>
+              </h3>
+              <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionFAQ">
+                <div class="accordion-body" style="font-size: 0.9rem; color: var(--texto-secundario);">
+                  Sí, al completar tu inscripción en las actividades y asistir de forma presencial o virtual, se te hará llegar un certificado digital avalado por la universidad.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item" style="background-color: var(--bg-secundario); border-color: var(--borde);">
+              <h3 class="accordion-header" id="headingFour">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour" style="background-color: var(--bg-secundario); color: var(--texto-principal);">
+                  ¿Dónde se ubica físicamente el festival?
+                </button>
+              </h3>
+              <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionFAQ">
+                <div class="accordion-body" style="font-size: 0.9rem; color: var(--texto-secundario);">
+                  El evento principal se lleva a cabo en las instalaciones centrales de la Universidad Cenfotec.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO DE CONTACTO DIRECTO -->
+      <div class="col-lg-6">
+        <div class="card p-4 shadow-sm h-100" style="background-color: var(--bg-card); border: 1px solid var(--borde); color: var(--texto-principal);">
+          <h2 class="h4 mb-4" style="font-family: var(--font-titulo); font-weight: 700;">
+            <i class="fa-solid fa-paper-plane text-primary"></i> Envíanos tu Consulta
+          </h2>
           
           <form id="formContacto" novalidate onsubmit="procesarContacto(event)">
-            
-            <!-- Campo: Nombre -->
-            <div class="mb-4">
+            <div class="mb-3">
               <label for="txtNombreContacto" class="form-label fw-bold"><i class="fa-solid fa-user"></i> Nombre Completo</label>
               <input type="text" class="form-control" id="txtNombreContacto" placeholder="Ingresa tu nombre" required
                      style="background-color: var(--bg-secundario); color: var(--texto-principal); border-color: var(--borde);">
-              <div class="invalid-feedback">Por favor, escribe tu nombre completo.</div>
             </div>
 
-            <!-- Campo: Correo -->
-            <div class="mb-4">
+            <div class="mb-3">
               <label for="txtCorreoContacto" class="form-label fw-bold"><i class="fa-solid fa-envelope"></i> Correo Electrónico</label>
               <input type="email" class="form-control" id="txtCorreoContacto" placeholder="ejemplo@cenfotec.ac.cr" required
                      style="background-color: var(--bg-secundario); color: var(--texto-principal); border-color: var(--borde);">
-              <div class="invalid-feedback">Ingresa una dirección de correo institucional válida.</div>
             </div>
 
-            <!-- Campo: Asunto -->
-            <div class="mb-4">
+            <div class="mb-3">
               <label for="txtAsunto" class="form-label fw-bold"><i class="fa-solid fa-circle-info"></i> Asunto</label>
               <input type="text" class="form-control" id="txtAsunto" placeholder="¿Cuál es el motivo de tu consulta?" required
                      style="background-color: var(--bg-secundario); color: var(--texto-principal); border-color: var(--borde);">
-              <div class="invalid-feedback">Asigna un asunto a tu mensaje.</div>
             </div>
 
-            <!-- Campo: Mensaje -->
-            <div class="mb-4">
+            <div class="mb-3">
               <label for="txtMensaje" class="form-label fw-bold"><i class="fa-solid fa-comment-dots"></i> Mensaje / Descripción</label>
-              <textarea class="form-control" id="txtMensaje" rows="5" placeholder="Detalla tu consulta aquí..." required
+              <textarea class="form-control" id="txtMensaje" rows="4" placeholder="Detalla tu consulta aquí..." required
                         style="background-color: var(--bg-secundario); color: var(--texto-principal); border-color: var(--borde); resize: none;"></textarea>
-              <div class="invalid-feedback">El cuerpo del mensaje no puede estar vacío.</div>
             </div>
 
-            <!-- Botones -->
             <div class="d-flex gap-3 justify-content-end mt-4">
-              <button type="submit" class="btn btn-primario px-4"><i class="fa-solid fa-share-from-square"></i> Enviar Mensaje</button>
+              <button type="submit" class="btn btn-primario px-4 w-100 py-2"><i class="fa-solid fa-share-from-square"></i> Enviar Mensaje</button>
             </div>
-
           </form>
-
         </div>
       </div>
+
     </div>
   </section>
 
 </main>
+
+<!-- ============================================================
+     MODAL AUTH — Login / Registro (Actualizado y unificado)
+============================================================ -->
+<div class="modal fade" id="modalAuth" tabindex="-1"
+     aria-labelledby="modalAuthTitulo" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="max-width:480px;">
+    <div class="modal-content">
+
+      <div class="auth-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <div class="auth-logo" aria-hidden="true">CF</div>
+        <h2 class="auth-titulo" id="modalAuthTitulo">CampusFest 2026</h2>
+        <p class="auth-subtitulo">Universidad Cenfotec</p>
+      </div>
+
+      <div class="auth-tabs" role="tablist">
+        <button class="auth-tab activo" id="tabLogin" role="tab"
+                aria-selected="true" aria-controls="panelLogin"
+                onclick="cambiarTab('login')">
+          <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Iniciar sesión
+        </button>
+        <button class="auth-tab" id="tabRegistro" role="tab"
+                aria-selected="false" aria-controls="panelRegistro"
+                onclick="cambiarTab('registro')">
+          <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Registrarse
+        </button>
+      </div>
+
+      <!-- Panel Login -->
+      <div id="panelLogin" class="auth-panel activo" role="tabpanel" aria-labelledby="tabLogin">
+        <div class="mb-3">
+          <label class="form-label" for="loginCedula">
+            Cédula / Identificación <span class="requerido">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
+            <input type="text" id="loginCedula" class="form-control"
+                   placeholder="Ej: 1-1234-5678" aria-required="true" />
+          </div>
+        </div>
+
+        <div class="mb-1">
+          <label class="form-label" for="loginCorreo">
+            Correo electrónico <span class="requerido">*</span>
+          </label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span>
+            <input type="email" id="loginCorreo" class="form-control"
+                   placeholder="su.correo@dominio.com"
+                   oninput="mostrarHintLogin(this.value)"
+                   aria-required="true" />
+          </div>
+          <p class="dominio-hint dominio-no" id="loginDominioHint" aria-live="polite"></p>
+        </div>
+
+        <div class="mb-4 mt-3">
+          <button type="button" class="btn btn-primario w-100 py-2 justify-content-center"
+                  onclick="procesarLogin()">
+            <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Ingresar
+          </button>
+        </div>
+
+        <p class="text-center" style="font-size:.82rem;color:var(--texto-secundario);">
+          ¿Aún no tenés cuenta?
+          <button type="button" class="btn btn-link p-0"
+                  style="font-size:.82rem;vertical-align:baseline;"
+                  onclick="cambiarTab('registro')">Registrate aquí</button>
+        </p>
+      </div>
+
+      <!-- Panel Registro -->
+      <div id="panelRegistro" class="auth-panel" role="tabpanel" aria-labelledby="tabRegistro">
+        <div class="row g-3 mb-2">
+          <div class="col-12">
+            <label class="form-label" for="regNombre">
+              Nombre completo <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-user" aria-hidden="true"></i></span>
+              <input type="text" id="regNombre" class="form-control"
+                     placeholder="Ej: María González" autocomplete="name" aria-required="true" />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="regCedula">
+              Identificación <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
+              <input type="text" id="regCedula" class="form-control"
+                     placeholder="1-1234-5678" aria-required="true" />
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label" for="regTelefono">
+              Teléfono <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-phone" aria-hidden="true"></i></span>
+              <input type="tel" id="regTelefono" class="form-control"
+                     placeholder="8888-8888" autocomplete="tel" aria-required="true" />
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="regCarrera">
+              Carrera <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-solid fa-graduation-cap" aria-hidden="true"></i></span>
+              <input type="text" id="regCarrera" class="form-control"
+                     placeholder="Ej: Ingeniería en Sistemas" aria-required="true" />
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label" for="regCorreo">
+              Correo electrónico <span class="requerido">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fa-regular fa-envelope" aria-hidden="true"></i></span>
+              <input type="email" id="regCorreo" class="form-control"
+                     placeholder="su.correo@dominio.com"
+                     oninput="mostrarHintRegistro(this.value)"
+                     aria-required="true" />
+            </div>
+            <p class="dominio-hint dominio-no" id="regDominioHint" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <button type="button" class="btn btn-primario w-100 py-2 justify-content-center"
+                  onclick="procesarRegistro()">
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i> Crear cuenta
+          </button>
+        </div>
+
+        <p class="text-center" style="font-size:.82rem;color:var(--texto-secundario);">
+          ¿Ya tenés cuenta?
+          <button type="button" class="btn btn-link p-0"
+                  style="font-size:.82rem;vertical-align:baseline;"
+                  onclick="cambiarTab('login')">Iniciá sesión</button>
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <!-- ==================== FOOTER ==================== -->
 <footer role="contentinfo">
@@ -178,9 +383,7 @@
     <div class="row g-4 mb-4">
       <div class="col-md-6 col-lg-5">
         <div class="footer-marca">CampusFest</div>
-
         <img src="assets/imgs/Cenfotec.png" alt="Logo Universidad Cenfotec" class="footer-logo" />
-
         <p class="footer-copy">© 2026 Universidad Cenfotec </p>
       </div>
       <div class="col-6 col-lg-3"></div>
@@ -197,6 +400,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Único archivo de control centralizado -->
 <script src="JS/Campus_Fest_2.js"></script>
 </body>
 </html>
