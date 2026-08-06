@@ -66,10 +66,10 @@ const schemaStand = new mongoose.Schema({
   //             en este proyecto el DELETE es permanente pero
   //             se mantiene el campo por consistencia con el resto)
   estado: {
-    type: String,
-    enum: ['activo', 'cancelado'],
-    default: 'activo'
-  }
+  type: String,
+  enum: ['activo', 'cancelado', 'pendiente'],
+  default: 'pendiente' // O 'activo' si lo crea el admin directamente
+}
 }, {
   timestamps: true
 });

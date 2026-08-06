@@ -891,3 +891,81 @@ async function responderMensaje(id) {
     cargarMensajesAdmin();
   }
 }
+
+// Abrir el modal de solicitud de stand para visitantes
+function abrirModalSolicitarStand() {
+  const modalEl = document.getElementById('modalSolicitarStand');
+  if (modalEl) {
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
+}
+
+// Enviar la solicitud de stand al backend (se guarda como pendiente)
+async function enviarSolicitudStand() {
+  const nombre = document.getElementById('solNombre').value.trim();
+  const responsable = document.getElementById('solResponsable').value.trim();
+  const ubicacion = document.getElementById('solUbicacion').value.trim();
+  const categoria = document.getElementById('solCategoria').value;
+  const descripcion = document.getElementById('solDescripcion').value.trim();
+
+  // Validar campos obligatorios
+  if (!nombre || !responsable || !ubicacion || !categoria) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Campos incompletos',
+      text: 'Por favor, completá todos los campos obligatorios (*).',
+      confirmButtonColor: '#3085d6'
+    });
+    return;
+  }
+
+  try {
+    // Nota: Como creamos la ruta POST /stands, enviamos los datos. 
+    // Por defecto en tu backend o modelo quedará como 'pendiente' o se ajustará.
+    const respuesta = await fetch(`${API_URL}/stands`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nombre,
+        responsable,
+        ubicacion,
+        categoria,
+        descripcion,
+        estado: 'pendiente' // Forzamos el estado pendiente para la solicitud
+      })
+    });
+
+    const datos = await respuesta.json();
+
+    if (respuesta.ok) {
+      // Cerrar modal
+      const modalEl = document.getElementById('modalSolicitarStand');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+
+      // Limpiar formulario
+      document.getElementById('formSolicitarStand').reset();
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Solicitud enviada!',
+        text: 'Tu propuesta de stand fue enviada con éxito. El administrador la revisará pronto.',
+        confirmButtonColor: '#28a745'
+      });
+    } else {
+      throw new Error(datos.msj || 'Error al enviar la solicitud');
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: error.message || 'No se pudo conectar con el servidor.',
+      confirmButtonColor: '#d33'
+    });
+  }
+}

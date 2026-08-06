@@ -91,21 +91,21 @@ async function cargarStandsVisitante() {
   const panelAdmin    = document.getElementById('panelStandsAdmin');
   if (mainVisitante) mainVisitante.style.display = 'block';
   if (panelAdmin)    panelAdmin.style.display    = 'none';
- 
+
   const grid = document.getElementById('contenedorStands');
   if (!grid) return;
- 
+
   grid.innerHTML = `
     <div class="col-12 text-center py-5">
       <div class="spinner-border text-primary" role="status"></div>
       <p class="mt-3 text-muted">Cargando stands...</p>
     </div>`;
- 
+
   try {
-    // ── HTTP GET /stands (solo activos) ────────
+    // ── HTTP GET /stands ────────
     const res  = await fetch(`${API_URL}/stands`);
     const data = await res.json();
- 
+
     if (!res.ok) {
       grid.innerHTML = `<div class="col-12 text-center text-danger py-5">
         <i class="fa-solid fa-triangle-exclamation fa-2x mb-2 d-block"></i>
@@ -113,10 +113,11 @@ async function cargarStandsVisitante() {
       </div>`;
       return;
     }
- 
-    _standsCache = data;
-    _renderTarjetasVisitante(data);
- 
+
+    // FILTRO CLAVE: Guardamos en caché solo los que estén 'activo' para los visitantes
+    _standsCache = data.filter(s => s.estado === 'activo');
+    _renderTarjetasVisitante(_standsCache);
+
   } catch {
     grid.innerHTML = `<div class="col-12 text-center text-danger py-5">
       <i class="fa-solid fa-triangle-exclamation fa-2x mb-2 d-block"></i>
@@ -351,11 +352,13 @@ function _renderTablaAdmin(data) {
  
   const BADGE_ESTADO = {
     activo:    'bg-success',
-    cancelado: 'bg-danger'
+    cancelado: 'bg-danger',
+    pendiente: 'bg-warning text-dark'
   };
   const LABEL_ESTADO = {
     activo:    'Activo',
-    cancelado: 'Cancelado'
+    cancelado: 'Cancelado',
+    pendiente: 'Pendiente'
   };
  
   tbody.innerHTML = data.map(s => `
@@ -466,7 +469,7 @@ function _formStand(s) {
      </option>`
   ).join('');
  
-  const opsEstado = ['activo', 'cancelado']
+  const opsEstado = ['activo', 'cancelado', 'pendiente'] 
     .map(e =>
       `<option value="${e}" ${v.estado === e ? 'selected' : ''}>
          ${e.charAt(0).toUpperCase() + e.slice(1)}
@@ -780,3 +783,81 @@ function _esc(s) { return (s || '').replace(/'/g, "\\'"); }
 document.addEventListener('DOMContentLoaded', () => {
   initStands();
 });
+
+// Abrir el modal de solicitud de stand para visitantes
+function abrirModalSolicitarStand() {
+  const modalEl = document.getElementById('modalSolicitarStand');
+  if (modalEl) {
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+  }
+}
+
+// Enviar la solicitud de stand al backend (se guarda como pendiente)
+async function enviarSolicitudStand() {
+  const nombre = document.getElementById('solNombre').value.trim();
+  const responsable = document.getElementById('solResponsable').value.trim();
+  const ubicacion = document.getElementById('solUbicacion').value.trim();
+  const categoria = document.getElementById('solCategoria').value;
+  const descripcion = document.getElementById('solDescripcion').value.trim();
+
+  // Validar campos obligatorios
+  if (!nombre || !responsable || !ubicacion || !categoria) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Campos incompletos',
+      text: 'Por favor, completá todos los campos obligatorios (*).',
+      confirmButtonColor: '#3085d6'
+    });
+    return;
+  }
+
+  try {
+    // Nota: Como creamos la ruta POST /stands, enviamos los datos. 
+    // Por defecto en tu backend o modelo quedará como 'pendiente' o se ajustará.
+    const respuesta = await fetch(`${API_URL}/stands`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        nombre,
+        responsable,
+        ubicacion,
+        categoria,
+        descripcion,
+        estado: 'pendiente' // Forzamos el estado pendiente para la solicitud
+      })
+    });
+
+    const datos = await respuesta.json();
+
+    if (respuesta.ok) {
+      // Cerrar modal
+      const modalEl = document.getElementById('modalSolicitarStand');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      if (modal) modal.hide();
+
+      // Limpiar formulario
+      document.getElementById('formSolicitarStand').reset();
+
+      Swal.fire({
+        icon: 'success',
+        title: '¡Solicitud enviada!',
+        text: 'Tu propuesta de stand fue enviada con éxito. El administrador la revisará pronto.',
+        confirmButtonColor: '#28a745'
+      });
+    } else {
+      throw new Error(datos.msj || 'Error al enviar la solicitud');
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: error.message || 'No se pudo conectar con el servidor.',
+      confirmButtonColor: '#d33'
+    });
+  }
+}

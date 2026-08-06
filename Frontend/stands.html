@@ -90,14 +90,20 @@
       </p>
     </div>
 
-    <!-- Buscador -->
-    <div class="input-group mb-4" style="max-width:400px;">
-      <span class="input-group-text">
-        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-      </span>
-      <input type="text" id="buscarStand" class="form-control"
-             placeholder="Buscar stand por nombre o responsable..."
-             aria-label="Buscar stand" />
+    <!-- Buscador y Botón de Solicitud para Visitantes -->
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+      <div class="input-group" style="max-width:400px;">
+        <span class="input-group-text">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        </span>
+        <input type="text" id="buscarStand" class="form-control"
+               placeholder="Buscar stand por nombre o responsable..."
+               aria-label="Buscar stand" />
+      </div>
+
+      <button type="button" class="btn btn-primario" onclick="abrirModalSolicitarStand()">
+        <i class="fa-solid fa-store" aria-hidden="true"></i> ¡Quiero solicitar un Stand!
+      </button>
     </div>
 
     <!-- Filtros de categoría -->
@@ -153,6 +159,8 @@
         <i class="fa-solid fa-gamepad" aria-hidden="true"></i> Recreativa
       </button>
     </div>
+
+    
 
     <!-- Grid de tarjetas — renderizado por stands.js -->
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4"
@@ -647,6 +655,67 @@
                   style="font-size:.82rem;vertical-align:baseline;"
                   onclick="cambiarTab('login')">Iniciá sesión</button>
         </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODAL: Solicitar Stand (Visitante) ==================== -->
+<div class="modal fade" id="modalSolicitarStand" tabindex="-1" aria-labelledby="modalSolicitarStandLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      
+      <div class="modal-header-campus">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        <h2 class="text-white fw-bold" id="modalSolicitarStandLabel" style="font-family:var(--font-titulo);font-size:1.5rem;">
+          <i class="fa-solid fa-store" aria-hidden="true"></i> Solicitar un Stand
+        </h2>
+      </div>
+
+      <div class="modal-body p-4">
+        <p class="text-muted small mb-3">
+          Completá los datos de tu propuesta. El administrador revisará la solicitud y, de ser aprobada, se publicará automáticamente en el festival.
+        </p>
+
+        <form id="formSolicitarStand">
+          <div class="mb-3">
+            <label class="form-label" for="solNombre">Nombre del Stand <span class="text-danger">*</span></label>
+            <input type="text" id="solNombre" class="form-control" placeholder="Ej: Videojuegos Retro U" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="solResponsable">Responsable o Encargado <span class="text-danger">*</span></label>
+            <input type="text" id="solResponsable" class="form-control" placeholder="Ej: María Pérez" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="solUbicacion">Ubicación sugerida <span class="text-danger">*</span></label>
+            <input type="text" id="solUbicacion" class="form-control" placeholder="Ej: Zona Tech / Pasillo A" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="solCategoria">Categoría <span class="text-danger">*</span></label>
+            <select id="solCategoria" class="form-select" required>
+              <option value="">— Seleccioná una categoría —</option>
+              <option value="cultural">Cultural</option>
+              <option value="deportiva">Deportiva</option>
+              <option value="tecnologica">Tecnológica</option>
+              <option value="artistica">Artística</option>
+              <option value="gastronomica">Gastronómica</option>
+              <option value="recreativa">Recreativa</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="solDescripcion">Descripción</label>
+            <textarea id="solDescripcion" class="form-control" rows="3" placeholder="Contanos brevemente qué ofrecerá el stand..."></textarea>
+          </div>
+
+          <button type="button" class="btn btn-primario w-100 py-2" onclick="enviarSolicitudStand()">
+            <i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar Solicitud
+          </button>
+        </form>
       </div>
 
     </div>
