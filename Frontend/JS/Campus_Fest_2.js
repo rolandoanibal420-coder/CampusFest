@@ -8,12 +8,25 @@
 
 const API_URL = 'http://localhost:3000/api';
 
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Carga y aplica el tema oscuro guardado en el localStorage
-    initModoOscuro();
-    
-    // 2. Valida si hay una sesión activa para mantener al usuario logueado en la página
-    aplicarEstadoSesion();
+// ==========================================
+// INICIALIZACIÓN GENERAL AL CARGAR EL DOM
+// ==========================================
+document.addEventListener("DOMContentLoaded", function() {
+  // 1. Carga y aplica el tema oscuro guardado en el localStorage
+  initModoOscuro();
+  
+  // 2. Valida si hay una sesión activa para mantener al usuario logueado
+  aplicarEstadoSesion();
+
+  // 3. Renderiza el catálogo completo de actividades si estamos en la página correcta
+  if (document.getElementById("contenedorCatálogo")) {
+    renderDestacadas();
+  }
+
+  // 4. Carga los mensajes si estamos en el panel de administración
+  if (document.getElementById("tablaMensajes")) {
+    cargarMensajesAdmin();
+  }
 });
 
 
@@ -651,8 +664,10 @@ function renderTarjetaActividad(act) {
 }
 
 function renderDestacadas() {
-  const g = document.getElementById('actividadesDestacadas');
-  if (g) g.innerHTML = ACTIVIDADES.filter(a => a.destacada).slice(0,3).map(renderTarjetaActividad).join('');
+  const g = document.getElementById('contenedorCatálogo');
+  if (g) {
+    g.innerHTML = ACTIVIDADES.map(renderTarjetaActividad).join('');
+  }
 }
 
 /* =============================================
@@ -763,24 +778,8 @@ function enviarInscripcion() {
   }
 }
 
-// ==========================================
-// INICIALIZACIÓN GENERAL AL CARGAR EL DOM
-// ==========================================
-document.addEventListener("DOMContentLoaded", function() {
-  if (document.getElementById("tablaMensajes")) {
-    cargarMensajesAdmin();
-  }
-});
 
-// ==========================================
-// GESTIÓN DE CONTACTO Y SOPORTE (ADMIN)
-// ==========================================
 
-document.addEventListener("DOMContentLoaded", function() {
-  if (document.getElementById("tablaMensajes")) {
-    cargarMensajesAdmin();
-  }
-});
 
 function procesarContacto(event) {
   event.preventDefault();
