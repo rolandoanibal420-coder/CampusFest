@@ -266,4 +266,6 @@ function _renderFilaAgenda(a, esAdmin) {
 ============================================= */
 document.addEventListener('DOMContentLoaded', () => {
   initAgenda();
+  // Cambia 'false' por 'true' para probar si así aparecen todas las que ya tenías creadas
+  cargarAgenda(true); 
 });
