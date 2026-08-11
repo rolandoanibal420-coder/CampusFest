@@ -936,3 +936,36 @@ async function responderMensaje(id) {
     cargarMensajesAdmin();
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    cargarActividadesEnSelect();
+});
+
+async function cargarActividadesEnSelect() {
+    try {
+        const response = await fetch('http://localhost:3000/api/actividades');
+        const actividades = await response.json();
+
+        // Reemplaza 'selectActividad' por el ID real que tenga tu <select> en inscripcion.html
+        const selectElement = document.getElementById('selectActividad') || document.querySelector('select[name="actividad"], select');
+        
+        if (!selectElement) return;
+
+        // Mantener la opción por defecto
+        selectElement.innerHTML = '<option value="">— Seleccioná una actividad —</option>';
+
+        actividades.forEach(act => {
+            const option = document.createElement('option');
+            option.value = act._id || act.nombre; // Usamos el ID o el nombre según prefieras
+            
+            // Calculamos cupos disponibles si aplica
+            const cuposDisponibles = act.cupoMax - (act.cupoActual || 0);
+            option.textContent = `${act.nombre} — ${cuposDisponibles > 0 ? cuposDisponibles + ' cupos disponibles' : 'Cupos llenos'}`;
+            
+            selectElement.appendChild(option);
+        });
+
+    } catch (error) {
+        console.error("Error al cargar las actividades en el formulario de inscripción:", error);
+    }
+}

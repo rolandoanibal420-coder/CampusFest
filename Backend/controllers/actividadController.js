@@ -22,3 +22,37 @@ exports.obtenerActividades = async (req, res) => {
         res.status(500).json({ mensaje: 'Error al obtener actividades' });
     }
 };
+
+// Función para actualizar una actividad
+exports.actualizarActividad = async (req, res) => {
+    try {
+        const actividadActualizada = await Actividad.findByIdAndUpdate(
+            req.params.id, 
+            req.body, 
+            { new: true, runValidators: true }
+        );
+        
+        if (!actividadActualizada) {
+            return res.status(404).json({ mensaje: 'Actividad no encontrada' });
+        }
+        
+        res.status(200).json(actividadActualizada);
+    } catch (error) {
+        res.status(400).json({ mensaje: 'Error al actualizar la actividad', detalle: error.message });
+    }
+};
+
+// Función para eliminar una actividad
+exports.eliminarActividad = async (req, res) => {
+    try {
+        const actividadEliminada = await Actividad.findByIdAndDelete(req.params.id);
+        
+        if (!actividadEliminada) {
+            return res.status(404).json({ mensaje: 'Actividad no encontrada' });
+        }
+        
+        res.status(200).json({ mensaje: 'Actividad eliminada correctamente' });
+    } catch (error) {
+        res.status(500).json({ mensaje: 'Error al eliminar la actividad', detalle: error.message });
+    }
+};
