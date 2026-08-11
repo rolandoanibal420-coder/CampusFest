@@ -1,6 +1,7 @@
-const express  = require('express');
-const router   = express.Router();
-const { Inscripcion, ACTIVIDADES_VALIDAS } = require('../models/inscripcion.model');
+const express = require('express');
+const router = express.Router();
+const { Inscripcion } = require('../models/inscripcion.model'); 
+const Actividad = require('../models/Actividad');
 
 /* ─────────────────────────────────────────────
    GET /inscripciones
@@ -43,9 +44,10 @@ router.get('/', async (req, res) => {
 router.get('/estadisticas', async (req, res) => {
   try {
     const todas = await Inscripcion.find();
+    const listaActividades = await Actividad.find(); // Obtenemos las actividades dinámicas de la BD
 
     // ── 1. Por actividad ──────────────────────
-    const porActividad = ACTIVIDADES_VALIDAS.map(a => {
+    const porActividad = listaActividades.map(a => {
       const inscritos = todas.filter(i => i.actividad === a.nombre).length;
       return {
         actividad:  a.nombre,
@@ -64,11 +66,10 @@ router.get('/estadisticas', async (req, res) => {
     };
 
     // ── 3. Por semana (últimas 8 semanas) ─────
-    // Agrupa inscripciones por semana ISO (lunes como inicio)
     const semanas = {};
     todas.forEach(i => {
       const fecha  = new Date(i.createdAt);
-      const dia    = fecha.getDay();                          // 0=dom
+      const dia    = fecha.getDay();                    // 0=dom
       const diff   = (dia === 0 ? -6 : 1) - dia;            // ajuste a lunes
       const lunes  = new Date(fecha);
       lunes.setDate(fecha.getDate() + diff);
@@ -77,7 +78,6 @@ router.get('/estadisticas', async (req, res) => {
       semanas[key] = (semanas[key] || 0) + 1;
     });
 
-    // Ordenar y tomar las últimas 8 semanas
     const porSemana = Object.entries(semanas)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-8)
@@ -89,7 +89,6 @@ router.get('/estadisticas', async (req, res) => {
     res.status(500).json({ msj: 'Error al calcular estadísticas', error: error.message });
   }
 });
-
 /* ─────────────────────────────────────────────
    GET /inscripciones/:id
    Devuelve una inscripción por su _id.
@@ -118,11 +117,18 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    // Verificar cupo disponible
-    const actInfo    = ACTIVIDADES_VALIDAS.find(a => a.nombre === actividad);
-    if (!actInfo) return res.status(400).json({ msj: 'La actividad seleccionada no es válida' });
+    const actividadLimpia = actividad.trim();
 
-    const inscritos  = await Inscripcion.countDocuments({ actividad });
+    // Búsqueda dinámica en la colección de actividades de la BD (insensible a mayúsculas/minúsculas)
+    const actInfo = await Actividad.findOne({
+      nombre: { $regex: new RegExp(`^${actividadLimpia}$`, 'i') }
+    });
+
+    if (!actInfo) {
+      return res.status(400).json({ msj: 'La actividad seleccionada no es válida' });
+    }
+
+    const inscritos  = await Inscripcion.countDocuments({ actividad: actInfo.nombre });
     const estaLlena  = inscritos >= actInfo.cupoMax;
 
     const nueva = new Inscripcion({
@@ -131,9 +137,9 @@ router.post('/', async (req, res) => {
       correo: correo.toLowerCase(),
       telefono,
       carrera,
-      actividad,
+      actividad: actInfo.nombre, // Usa el nombre oficial guardado en la BD
       comentarios: comentarios || '',
-      estado: 'pendiente'   // siempre pendiente al registrarse
+      estado: 'pendiente'   
     });
 
     await nueva.save();
@@ -147,6 +153,7 @@ router.post('/', async (req, res) => {
     });
 
   } catch (error) {
+    console.error("ERROR REAL EN EL SERVIDOR:", error);
     res.status(500).json({ msj: 'Error al registrar la inscripción', error: error.message });
   }
 });

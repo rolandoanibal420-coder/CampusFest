@@ -59,42 +59,54 @@ function _onSesionNula() {
 
 /* =============================================
    INICIALIZACIÓN
-   Se llama desde DOMContentLoaded (único punto)
 ============================================= */
 function initInscripcion() {
   poblarSelectInscripcion();
   limpiarFormInscripcion();
-  // aplicarEstadoSesion() ya fue llamado en Campus_Fest_2.js
-  // y disparará _onSesionAdmin() o _onSesionVisitante() según corresponda
 }
 
 /* =============================================
    POBLAR SELECT DE ACTIVIDADES
    Muestra cupos disponibles en tiempo real
 ============================================= */
-function poblarSelectInscripcion() {
+async function poblarSelectInscripcion() {
   const sel = document.getElementById('inpActividad');
   if (!sel) return;
 
   sel.innerHTML = '<option value="">— Seleccioná una actividad —</option>';
 
-  Object.entries(CUPOS_ACTIVIDADES).forEach(([nombre, datos]) => {
-    const libres  = datos.max - datos.actuales;
-    const llena   = libres <= 0;
-    const opt     = document.createElement('option');
-    opt.value     = nombre;
-    opt.textContent = llena
-      ? `${nombre} (Lista de espera)`
-      : `${nombre} — ${libres} cupos disponibles`;
-    sel.appendChild(opt);
-  });
+  try {
+    const res = await fetch(`${API_URL}/actividades`);
+    const actividades = await res.json();
 
-  // Preseleccionar si viene por ?actividad= en la URL
-  const params = new URLSearchParams(window.location.search);
-  const actUrl = params.get('actividad');
-  if (actUrl) {
-    sel.value = actUrl;
-    verificarCupoInscripcion(actUrl);
+    if (!res.ok) return;
+
+    actividades.forEach(act => {
+      const cupoMax = Number(act.cupoMax) || 0;
+      const cupoActual = Number(act.cupoActual) || 0;
+      const libres = Math.max(0, cupoMax - cupoActual);
+      const llena = cupoActual >= cupoMax || act.estado === 'llena';
+
+      const opt = document.createElement('option');
+      opt.value = act.nombre; // Coincide con el enum de Mongoose
+      opt.textContent = llena
+        ? `${act.nombre} (Lista de espera)`
+        : `${act.nombre} — ${libres} cupos disponibles`;
+      sel.appendChild(opt);
+    });
+
+    // Event listener para actualizar alertas al cambiar de opción
+    sel.addEventListener('change', (e) => verificarCupoInscripcion(e.target.value));
+
+    // Preseleccionar si viene por URL
+    const params = new URLSearchParams(window.location.search);
+    const actUrl = params.get('actividad');
+    if (actUrl) {
+      sel.value = actUrl;
+      verificarCupoInscripcion(actUrl);
+    }
+  } catch (error) {
+    console.error("Error al cargar actividades en el select", error);
   }
 }
 
@@ -151,22 +163,17 @@ function limpiarFormInscripcion() {
   });
 }
 
-/* mostrarVistaPorRol() fue reemplazada por los
-   callbacks _onSesionAdmin / _onSesionVisitante / _onSesionNula
-   que Campus_Fest_2.js llama automáticamente */
-
 /* =============================================
    POST /inscripciones — Enviar formulario
-   HTTP POST → MongoDB
 ============================================= */
 async function enviarInscripcion() {
-  const nombre   = document.getElementById('inpNombre').value.trim();
-  const ident    = document.getElementById('inpIdentificacion').value.trim();
-  const correo   = document.getElementById('inpCorreo').value.trim();
-  const tel      = document.getElementById('inpTelefono').value.trim();
-  const carrera  = document.getElementById('inpCarrera').value.trim();
-  const actividad= document.getElementById('inpActividad').value;
-  const coment   = document.getElementById('inpComentarios')?.value.trim() || '';
+  const nombre    = document.getElementById('inpNombre').value.trim();
+  const ident     = document.getElementById('inpIdentificacion').value.trim();
+  const correo    = document.getElementById('inpCorreo').value.trim();
+  const tel       = document.getElementById('inpTelefono').value.trim();
+  const carrera   = document.getElementById('inpCarrera').value.trim();
+  const actividad = document.getElementById('inpActividad').value;
+  const coment    = document.getElementById('inpComentarios')?.value.trim() || '';
 
   // Limpiar errores previos
   ['inpNombre','inpIdentificacion','inpCorreo',
@@ -197,7 +204,6 @@ async function enviarInscripcion() {
   Swal.fire({ title: 'Enviando inscripción...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
   try {
-    // ── HTTP POST /inscripciones ───────────────
     const res  = await fetch(`${API_URL}/inscripciones`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -206,7 +212,7 @@ async function enviarInscripcion() {
     const data = await res.json();
 
     if (!res.ok) {
-      Swal.fire({ icon: 'error', title: 'Error', text: data.msj, confirmButtonColor: '#006AEA' });
+      Swal.fire({ icon: 'error', title: 'Error', text: data.msj || 'No se pudo enviar la inscripción.' });
       return;
     }
 
@@ -243,7 +249,6 @@ async function enviarInscripcion() {
 
 /* =============================================
    PANEL ADMINISTRADOR
-   Carga tarjetas de resumen + tabla + gráficos
 ============================================= */
 async function cargarPanelAdmin() {
   await Promise.all([
@@ -252,9 +257,6 @@ async function cargarPanelAdmin() {
   ]);
 }
 
-/* ─────────────────────────────────────────────
-   GET /inscripciones — Tabla de inscripciones
-───────────────────────────────────────────── */
 async function cargarTablaInscripciones(filtros = {}) {
   const tbody = document.getElementById('tablaInscripcionesCuerpo');
   if (!tbody) return;
@@ -267,7 +269,6 @@ async function cargarTablaInscripciones(filtros = {}) {
       </td>
     </tr>`;
 
-  // Construir query string
   const params = new URLSearchParams();
   if (filtros.q)         params.append('q',         filtros.q);
   if (filtros.actividad) params.append('actividad',  filtros.actividad);
@@ -275,7 +276,6 @@ async function cargarTablaInscripciones(filtros = {}) {
   const qs = params.toString() ? '?' + params.toString() : '';
 
   try {
-    // ── HTTP GET /inscripciones ────────────────
     const res  = await fetch(`${API_URL}/inscripciones${qs}`);
     const data = await res.json();
 
@@ -296,7 +296,6 @@ async function cargarTablaInscripciones(filtros = {}) {
   }
 }
 
-/* Renderiza las filas de la tabla */
 function _renderTablaInscripciones(data) {
   const tbody  = document.getElementById('tablaInscripcionesCuerpo');
   const info   = document.getElementById('tablaInscripcionesInfo');
@@ -313,39 +312,21 @@ function _renderTablaInscripciones(data) {
     return;
   }
 
-  const BADGE_CLASE = {
-    pendiente:  'bg-warning text-dark',
-    confirmada: 'bg-success',
-    cancelada:  'bg-danger'
-  };
-  const BADGE_LABEL = {
-    pendiente:  'Pendiente',
-    confirmada: 'Confirmada',
-    cancelada:  'Cancelada'
-  };
-  const BADGE_ICONO = {
-    pendiente:  'fa-clock',
-    confirmada: 'fa-circle-check',
-    cancelada:  'fa-circle-xmark'
-  };
+  const BADGE_CLASE = { pendiente: 'bg-warning text-dark', confirmada: 'bg-success', cancelada: 'bg-danger' };
+  const BADGE_LABEL = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada' };
+  const BADGE_ICONO = { pendiente: 'fa-clock', confirmada: 'fa-circle-check', cancelada: 'fa-circle-xmark' };
 
   tbody.innerHTML = data.map(i => {
-    // Badge de estado:
-    // pendiente  → botón clickeable con icono de mano (llama confirmarInscripcion)
-    // confirmada → badge verde estático
-    // cancelada  → badge rojo estático
     const badgeEstado = i.estado === 'pendiente'
       ? `<button type="button"
                  class="badge border-0 ${BADGE_CLASE.pendiente}"
                  style="cursor:pointer;font-size:.8rem;padding:.35em .65em;"
                  onclick="confirmarInscripcion('${i._id}','${_esc(i.nombre)}')"
-                 title="Clic para confirmar esta inscripción"
-                 aria-label="Confirmar inscripción de ${i.nombre}">
+                 title="Clic para confirmar esta inscripción">
            <i class="fa-solid fa-clock"></i> Pendiente
            <i class="fa-solid fa-hand-pointer ms-1" style="font-size:.7rem;opacity:.7;"></i>
          </button>`
-      : `<span class="badge ${BADGE_CLASE[i.estado] || 'bg-secondary'}"
-               style="font-size:.8rem;">
+      : `<span class="badge ${BADGE_CLASE[i.estado] || 'bg-secondary'}" style="font-size:.8rem;">
            <i class="fa-solid ${BADGE_ICONO[i.estado] || 'fa-circle'}"></i>
            ${BADGE_LABEL[i.estado] || i.estado}
          </span>`;
@@ -359,18 +340,15 @@ function _renderTablaInscripciones(data) {
       <td>${badgeEstado}</td>
       <td class="text-center pe-3">
         <button class="btn btn-sm btn-outline-info me-1"
-                onclick="verComentarios('${_esc(i.nombre)}','${_esc(i.comentarios || 'Sin comentarios adicionales.')}')"
-                aria-label="Ver comentarios de ${i.nombre}" title="Ver comentarios">
+                onclick="verComentarios('${_esc(i.nombre)}','${_esc(i.comentarios || 'Sin comentarios adicionales.')}')" title="Ver comentarios">
           <i class="fa-solid fa-eye"></i>
         </button>
         <button class="btn btn-sm btn-outline-warning me-1"
-                onclick="abrirModalEditarInscripcion('${i._id}','${_esc(i.nombre)}','${_esc(i.identificacion)}','${_esc(i.correo)}','${_esc(i.telefono)}','${_esc(i.carrera)}','${_esc(i.actividad)}','${i.estado}','${_esc(i.comentarios || '')}')"
-                aria-label="Editar inscripción de ${i.nombre}" title="Editar">
+                onclick="abrirModalEditarInscripcion('${i._id}','${_esc(i.nombre)}','${_esc(i.identificacion)}','${_esc(i.correo)}','${_esc(i.telefono)}','${_esc(i.carrera)}','${_esc(i.actividad)}','${i.estado}','${_esc(i.comentarios || '')}')" title="Editar">
           <i class="fa-solid fa-pen"></i>
         </button>
         <button class="btn btn-sm btn-outline-danger"
-                onclick="eliminarInscripcion('${i._id}','${_esc(i.nombre)}')"
-                aria-label="Eliminar inscripción de ${i.nombre}" title="Eliminar">
+                onclick="eliminarInscripcion('${i._id}','${_esc(i.nombre)}')" title="Eliminar">
           <i class="fa-solid fa-trash"></i>
         </button>
       </td>
@@ -378,114 +356,51 @@ function _renderTablaInscripciones(data) {
   }).join('');
 }
 
-/* ─────────────────────────────────────────────
-   Ver comentarios (ojo)
-───────────────────────────────────────────── */
 function verComentarios(nombre, comentarios) {
-  Swal.fire({
-    title: `Comentarios — ${nombre}`,
-    text:  comentarios || 'Sin comentarios adicionales.',
-    icon:  'info',
-    confirmButtonColor: '#006AEA',
-    confirmButtonText: 'Cerrar'
-  });
+  Swal.fire({ title: `Comentarios — ${nombre}`, text: comentarios || 'Sin comentarios adicionales.', icon: 'info', confirmButtonColor: '#006AEA', confirmButtonText: 'Cerrar' });
 }
 
-/* ─────────────────────────────────────────────
-   Confirmar inscripción desde el badge
-   PUT /inscripciones/:id  →  estado: 'confirmada'
-───────────────────────────────────────────── */
 async function confirmarInscripcion(id, nombre) {
   const result = await Swal.fire({
-    icon:  'question',
-    title: '¿Confirmar inscripción?',
-    html:  `¿Deseás confirmar la inscripción de <strong>${nombre}</strong>?
-            <br><small class="text-muted d-block mt-1">
-              El estado cambiará de <strong>Pendiente</strong> a
-              <span style="color:#198754;font-weight:700;">Confirmada</span>.
-            </small>`,
-    showCancelButton:    true,
-    confirmButtonColor:  '#198754',
-    cancelButtonColor:   '#7c7b75',
-    confirmButtonText:   '<i class="fa-solid fa-circle-check"></i> Sí, confirmar',
-    cancelButtonText:    'No, cancelar',
-    reverseButtons:      true
+    icon: 'question', title: '¿Confirmar inscripción?',
+    html: `¿Deseás confirmar la inscripción de <strong>${nombre}</strong>?`,
+    showCancelButton: true, confirmButtonColor: '#198754', cancelButtonColor: '#7c7b75', confirmButtonText: 'Sí, confirmar', cancelButtonText: 'No, cancelar'
   });
 
   if (!result.isConfirmed) return;
 
-  // Buscar el registro completo en cache para no perder los demás campos
   const inscripcion = _inscripcionesCache.find(i => i._id === id);
-  if (!inscripcion) {
-    Swal.fire({ icon: 'error', title: 'Error', text: 'No se encontró la inscripción en el cache. Actualizá la tabla.', confirmButtonColor: '#006AEA' });
-    return;
-  }
+  if (!inscripcion) return;
 
   Swal.fire({ title: 'Confirmando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
   try {
-    // ── HTTP PUT /inscripciones/:id ────────────
-    const res  = await fetch(`${API_URL}/inscripciones/${id}`, {
-      method:  'PUT',
+    const res = await fetch(`${API_URL}/inscripciones/${id}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
-        nombre:         inscripcion.nombre,
-        identificacion: inscripcion.identificacion,
-        correo:         inscripcion.correo,
-        telefono:       inscripcion.telefono,
-        carrera:        inscripcion.carrera,
-        actividad:      inscripcion.actividad,
-        comentarios:    inscripcion.comentarios || '',
-        estado:         'confirmada'   // ← único campo que cambia
-      })
+      body: JSON.stringify({ ...inscripcion, estado: 'confirmada' })
     });
-    const data = await res.json();
 
     if (!res.ok) {
-      Swal.fire({ icon: 'error', title: 'Error al confirmar', text: data.msj, confirmButtonColor: '#006AEA' });
+      Swal.fire({ icon: 'error', title: 'Error al confirmar', confirmButtonColor: '#006AEA' });
       return;
     }
 
-    // Actualizar cache local para que el filtro refleje el nuevo estado sin re-fetch
-    const idx = _inscripcionesCache.findIndex(i => i._id === id);
-    if (idx !== -1) _inscripcionesCache[idx].estado = 'confirmada';
-
-    Swal.fire({
-      icon:  'success',
-      title: '¡Inscripción confirmada!',
-      html:  `<p>La inscripción de <strong>${nombre}</strong> fue confirmada exitosamente.</p>
-              <p style="margin-top:.5rem;">
-                El estado cambió a
-                <span class="badge bg-success ms-1">
-                  <i class="fa-solid fa-circle-check"></i> Confirmada
-                </span>
-              </p>`,
-      confirmButtonColor: '#198754',
-      timer:  2500,
-      timerProgressBar: true
-    });
-
-    // Recargar tabla Y estadísticas para reflejar el cambio en los gráficos y tarjetas
     await cargarPanelAdmin();
+    Swal.fire({ icon: 'success', title: '¡Inscripción confirmada!', timer: 2000 });
 
   } catch {
-    Swal.fire({ icon: 'error', title: 'Sin conexión', text: 'No se pudo conectar con el servidor.', confirmButtonColor: '#006AEA' });
+    Swal.fire({ icon: 'error', title: 'Sin conexión', confirmButtonColor: '#006AEA' });
   }
 }
 
-/* ─────────────────────────────────────────────
-   Filtrar tabla (sin re-fetch)
-───────────────────────────────────────────── */
 function aplicarFiltrosTabla() {
   const q         = document.getElementById('buscarInscripcion')?.value.toLowerCase() || '';
   const actividad = document.getElementById('filtroActividad')?.value || '';
   const estado    = document.getElementById('filtroEstado')?.value    || '';
 
   const filtrados = _inscripcionesCache.filter(i => {
-    const textoOk = !q ||
-      i.nombre.toLowerCase().includes(q) ||
-      i.correo.toLowerCase().includes(q) ||
-      i.identificacion.toLowerCase().includes(q);
+    const textoOk = !q || i.nombre.toLowerCase().includes(q) || i.correo.toLowerCase().includes(q) || i.identificacion.toLowerCase().includes(q);
     const actOk   = !actividad || i.actividad === actividad;
     const estOk   = !estado    || i.estado    === estado;
     return textoOk && actOk && estOk;
@@ -494,45 +409,25 @@ function aplicarFiltrosTabla() {
   _renderTablaInscripciones(filtrados);
 }
 
-/* ─────────────────────────────────────────────
-   DELETE /inscripciones/:id
-───────────────────────────────────────────── */
 async function eliminarInscripcion(id, nombre) {
   const result = await Swal.fire({
     icon: 'warning', title: '¿Eliminar inscripción?',
-    html: `¿Seguro que querés eliminar la inscripción de <strong>${nombre}</strong>?<br>
-           <small class="text-muted">Esta acción no se puede deshacer.</small>`,
-    showCancelButton: true,
-    confirmButtonColor: '#d2232a', cancelButtonColor: '#7c7b75',
-    confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar'
+    html: `¿Seguro que querés eliminar la inscripción de <strong>${nombre}</strong>?`,
+    showCancelButton: true, confirmButtonColor: '#d2232a', cancelButtonColor: '#7c7b75'
   });
   if (!result.isConfirmed) return;
 
   try {
-    // ── HTTP DELETE /inscripciones/:id ─────────
-    const res  = await fetch(`${API_URL}/inscripciones/${id}`, { method: 'DELETE' });
-    const data = await res.json();
+    const res = await fetch(`${API_URL}/inscripciones/${id}`, { method: 'DELETE' });
+    if (!res.ok) return;
 
-    if (!res.ok) {
-      Swal.fire({ icon: 'error', title: 'Error', text: data.msj, confirmButtonColor: '#006AEA' });
-      return;
-    }
-
-    Swal.fire({
-      icon: 'success', title: 'Inscripción eliminada',
-      text: `La inscripción de ${nombre} fue eliminada.`,
-      confirmButtonColor: '#006AEA', timer: 2000, timerProgressBar: true
-    });
+    Swal.fire({ icon: 'success', title: 'Inscripción eliminada', timer: 2000 });
     cargarPanelAdmin();
-
   } catch {
-    Swal.fire({ icon: 'error', title: 'Sin conexión', text: 'No se pudo conectar con el servidor.', confirmButtonColor: '#006AEA' });
+    Swal.fire({ icon: 'error', title: 'Sin conexión' });
   }
 }
 
-/* ─────────────────────────────────────────────
-   PUT /inscripciones/:id — Modal edición
-───────────────────────────────────────────── */
 function abrirModalEditarInscripcion(id, nombre, identificacion, correo, telefono, carrera, actividad, estado, comentarios) {
   const cuerpo = document.getElementById('modalAdminCuerpo');
   const titulo = document.getElementById('modalAdminTitulo');
@@ -604,36 +499,27 @@ async function guardarEdicionInscripcion(id) {
   const comentarios    = document.getElementById('editInsComentarios').value.trim();
 
   if (!nombre || !identificacion || !correo || !telefono || !carrera || !actividad || !estado) {
-    Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Completá todos los campos obligatorios.', confirmButtonColor: '#006AEA' });
+    Swal.fire({ icon: 'warning', title: 'Campos incompletos', text: 'Completá todos los campos obligatorios.' });
     return;
   }
 
   Swal.fire({ title: 'Guardando...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
   try {
-    // ── HTTP PUT /inscripciones/:id ────────────
     const res  = await fetch(`${API_URL}/inscripciones/${id}`, {
       method:  'PUT',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({ nombre, identificacion, correo, telefono, carrera, actividad, estado, comentarios })
     });
-    const data = await res.json();
 
-    if (!res.ok) {
-      Swal.fire({ icon: 'error', title: 'Error al actualizar', text: data.msj, confirmButtonColor: '#006AEA' });
-      return;
-    }
+    if (!res.ok) return;
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).hide();
-    Swal.fire({
-      icon: 'success', title: 'Inscripción actualizada',
-      text: `La inscripción de ${data.nombre} fue actualizada correctamente.`,
-      confirmButtonColor: '#006AEA', timer: 2000, timerProgressBar: true
-    });
+    Swal.fire({ icon: 'success', title: 'Inscripción actualizada', timer: 2000 });
     cargarPanelAdmin();
 
   } catch {
-    Swal.fire({ icon: 'error', title: 'Sin conexión', text: 'No se pudo conectar con el servidor.', confirmButtonColor: '#006AEA' });
+    Swal.fire({ icon: 'error', title: 'Sin conexión' });
   }
 }
 
@@ -763,7 +649,7 @@ function _dibujarGraficoSemanas(porSemana) {
   if (_chartSemanas) _chartSemanas.destroy();
 
   // Si no hay datos reales, mostrar datos de ejemplo
-  const datos = porSemana.length > 0 ? porSemana : [
+  const datos = porSemana && porSemana.length > 0 ? porSemana : [
     { semana: 'Sem 1', cantidad: 0 },
     { semana: 'Sem 2', cantidad: 0 }
   ];
@@ -775,7 +661,7 @@ function _dibujarGraficoSemanas(porSemana) {
       datasets: [{
         label: 'Inscripciones',
         data: datos.map(d => d.cantidad),
-        borderColor:     '#006AEA',
+        borderColor:    '#006AEA',
         backgroundColor: 'rgba(0,106,234,0.1)',
         fill:   true,
         tension: 0.4,
@@ -800,172 +686,8 @@ function _dibujarGraficoSemanas(porSemana) {
 function _esc(s) { return (s || '').replace(/'/g, "\\'"); }
 
 /* =============================================
-   INICIALIZACIÓN
-   Campus_Fest_2.js ya llama aplicarEstadoSesion()
-   en su propio DOMContentLoaded. Los callbacks
-   _onSesionAdmin / _onSesionVisitante / _onSesionNula
-   definidos arriba se ejecutarán automáticamente.
-   Solo necesitamos inicializar el formulario aquí.
+   INICIALIZACIÓN DE LA VISTA DE INSCRIPCIÓN
 ============================================= */
 document.addEventListener('DOMContentLoaded', () => {
   initInscripcion();
 });
-
-// ==========================================
-// LÓGICA DE CONTACTO Y SOPORTE DINÁMICO
-// ==========================================
-
-document.addEventListener("DOMContentLoaded", function() {
-  // Inicializar la carga de mensajes del administrador si estamos en contacto.html
-  if (document.getElementById("tablaMensajes")) {
-    cargarMensajesAdmin();
-  }
-});
-
-// Procesar y guardar nuevas consultas desde el formulario
-function procesarContacto(event) {
-  event.preventDefault();
-
-  const nombre = document.getElementById("txtNombreContacto").value.trim();
-  const correo = document.getElementById("txtCorreoContacto").value.trim();
-  const asunto = document.getElementById("txtAsunto").value.trim();
-  const mensaje = document.getElementById("txtMensaje").value.trim();
-
-  if (!nombre || !correo || !asunto || !mensaje) {
-    Swal.fire("Campos incompletos", "Por favor completa todos los campos del formulario.", "warning");
-    return;
-  }
-
-  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
-  
-  const nuevoMensaje = {
-    id: Date.now(),
-    nombre,
-    correo,
-    asunto,
-    mensaje
-  };
-
-  mensajes.push(nuevoMensaje);
-  localStorage.setItem("campusfest_mensajes", JSON.stringify(mensajes));
-
-  Swal.fire({
-    icon: "success",
-    title: "¡Mensaje enviado!",
-    text: "Tu consulta ha sido enviada con éxito al equipo organizador.",
-    timer: 2000,
-    showConfirmButton: false
-  });
-
-  document.getElementById("formContacto").reset();
-  cargarMensajesAdmin();
-}
-
-// Cargar dinámicamente las consultas en la tabla del panel administrador
-function cargarMensajesAdmin() {
-  const tbody = document.getElementById("tablaMensajes");
-  if (!tbody) return;
-
-  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
-
-  // Datos base por defecto si la bandeja está vacía
-  if (mensajes.length === 0) {
-    mensajes = [
-      {
-        id: 1,
-        nombre: "Vero Alfaro",
-        correo: "valfaroa@cenfotec.ac.cr",
-        asunto: "Duda con Stand",
-        mensaje: "¿Aún hay espacio para colocar un banner extra en el stand A-10?"
-      }
-    ];
-    localStorage.setItem("campusfest_mensajes", JSON.stringify(mensajes));
-  }
-
-  tbody.innerHTML = "";
-
-  mensajes.forEach((item) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${item.nombre}</td>
-      <td>${item.correo}</td>
-      <td>${item.asunto}</td>
-      <td>${item.mensaje}</td>
-      <td>
-        <button class="btn btn-primario btn-sm py-0 px-2" onclick="responderMensaje(${item.id})">
-          <i class="fa-solid fa-reply"></i> Responder
-        </button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-}
-
-// Ventana interactiva para que el administrador responda el mensaje
-async function responderMensaje(id) {
-  let mensajes = JSON.parse(localStorage.getItem("campusfest_mensajes")) || [];
-  const mensajeObj = mensajes.find(m => m.id === id);
-
-  if (!mensajeObj) return;
-
-  const { value: respuesta } = await Swal.fire({
-    title: `Responder a ${mensajeObj.nombre}`,
-    input: 'textarea',
-    inputLabel: `Asunto: "${mensajeObj.asunto}"`,
-    inputPlaceholder: 'Escribe tu respuesta aquí para enviarla al usuario...',
-    inputAttributes: {
-      'aria-label': 'Escribe tu respuesta aquí'
-    },
-    showCancelButton: true,
-    confirmButtonText: 'Enviar Respuesta',
-    cancelButtonText: 'Cancelar',
-    confirmButtonColor: '#0d6efd'
-  });
-
-  if (respuesta) {
-    // Remover de pendientes al ser respondido
-    mensajes = mensajes.filter(m => m.id !== id);
-    localStorage.setItem("campusfest_mensajes", JSON.stringify(mensajes));
-
-    Swal.fire(
-      '¡Respuesta Enviada!',
-      `La respuesta se ha enviado correctamente a ${mensajeObj.correo}.`,
-      'success'
-    );
-
-    cargarMensajesAdmin();
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    cargarActividadesEnSelect();
-});
-
-async function cargarActividadesEnSelect() {
-    try {
-        const response = await fetch('http://localhost:3000/api/actividades');
-        const actividades = await response.json();
-
-        // Reemplaza 'selectActividad' por el ID real que tenga tu <select> en inscripcion.html
-        const selectElement = document.getElementById('selectActividad') || document.querySelector('select[name="actividad"], select');
-        
-        if (!selectElement) return;
-
-        // Mantener la opción por defecto
-        selectElement.innerHTML = '<option value="">— Seleccioná una actividad —</option>';
-
-        actividades.forEach(act => {
-            const option = document.createElement('option');
-            option.value = act._id || act.nombre; // Usamos el ID o el nombre según prefieras
-            
-            // Calculamos cupos disponibles si aplica
-            const cuposDisponibles = act.cupoMax - (act.cupoActual || 0);
-            option.textContent = `${act.nombre} — ${cuposDisponibles > 0 ? cuposDisponibles + ' cupos disponibles' : 'Cupos llenos'}`;
-            
-            selectElement.appendChild(option);
-        });
-
-    } catch (error) {
-        console.error("Error al cargar las actividades en el formulario de inscripción:", error);
-    }
-}

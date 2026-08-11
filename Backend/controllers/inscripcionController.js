@@ -3,18 +3,18 @@ const Inscripcion = require('../models/Inscripcion');
 
 // Función para crear una inscripción
 exports.crearInscripcion = async (req, res) => {
+    // Imprime exactamente qué texto llegó desde el navegador
+    console.log("Actividad recibida desde el frontend:", JSON.stringify(req.body.actividad));
+
     try {
         const nuevaInscripcion = new Inscripcion(req.body);
         const guardada = await nuevaInscripcion.save();
-        res.status(201).json(guardada); // Código 201: Creado con éxito
+        res.status(201).json(guardada);
     } catch (error) {
-        res.status(400).json({ 
-            mensaje: 'Error al registrar la inscripción. Asegúrate de que los IDs sean válidos.', 
-            detalle: error.message 
-        });
+        console.error("Error detallado de Mongoose:", error.message);
+        res.status(400).json({ msj: error.message });
     }
 };
-
 // Función para obtener todas las inscripciones
 exports.obtenerInscripciones = async (req, res) => {
     try {

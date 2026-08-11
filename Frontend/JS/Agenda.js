@@ -164,8 +164,11 @@ function _renderGrupoFecha(fecha, actividades, esAdmin) {
 ============================================= */
 function _renderFilaAgenda(a, esAdmin) {
   // Calcular estado visual
-  const pct    = a.cupoMax > 0 ? (a.cupoActual / a.cupoMax) * 100 : 0;
-  const libres = Math.max(0, a.cupoMax - a.cupoActual);
+
+  const cupoMax = Number(a.cupoMax) || 0;
+  const cupoActual = Number(a.cupoActual) || 0;
+  const pct = cupoMax > 0 ? (cupoActual / cupoMax) * 100 : 0;
+  const libres = Math.max(0, cupoMax - cupoActual);
 
   let estadoClase = 'estado-disponible';
   let estadoLabel = 'Disponible';
