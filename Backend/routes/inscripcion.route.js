@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
       ];
     }
 
-    const inscripciones = await Inscripcion.find(filtro).sort({ createdAt: -1 });
+    const inscripciones = await Inscripcion.find(filtro);
     res.status(200).json(inscripciones);
 
   } catch (error) {
@@ -44,22 +44,23 @@ router.get('/', async (req, res) => {
 router.get('/estadisticas', async (req, res) => {
   try {
     const todas = await Inscripcion.find();
-    const listaActividades = await Actividad.find(); // Obtenemos las actividades dinámicas de la BD
+    const listaActividades = await Actividad.find(); 
 
     // ── 1. Por actividad ──────────────────────
     const porActividad = listaActividades.map(a => {
-      const inscritos = todas.filter(i => i.actividad === a.nombre).length;
+      // Contamos únicamente las inscripciones que ya fueron confirmadas para restar el cupo real
+      const inscritos = todas.filter(i => i.actividad === a.nombre && i.estado === 'confirmada').length;
       return {
-        actividad:  a.nombre,
+        actividad:   a.nombre,
         inscritos,
-        cupoMax:    a.cupoMax,
+        cupoMax:     a.cupoMax,
         disponibles: Math.max(0, a.cupoMax - inscritos)
       };
     });
 
     // ── 2. Totales por estado ─────────────────
     const totales = {
-      total:      todas.length,
+      total:       todas.length,
       pendientes: todas.filter(i => i.estado === 'pendiente').length,
       confirmadas:todas.filter(i => i.estado === 'confirmada').length,
       canceladas: todas.filter(i => i.estado === 'cancelada').length
@@ -69,12 +70,12 @@ router.get('/estadisticas', async (req, res) => {
     const semanas = {};
     todas.forEach(i => {
       const fecha  = new Date(i.createdAt);
-      const dia    = fecha.getDay();                    // 0=dom
-      const diff   = (dia === 0 ? -6 : 1) - dia;            // ajuste a lunes
+      const dia    = fecha.getDay();                    
+      const diff   = (dia === 0 ? -6 : 1) - dia;            
       const lunes  = new Date(fecha);
       lunes.setDate(fecha.getDate() + diff);
       lunes.setHours(0, 0, 0, 0);
-      const key = lunes.toISOString().split('T')[0];         // 'YYYY-MM-DD'
+      const key = lunes.toISOString().split('T')[0];         
       semanas[key] = (semanas[key] || 0) + 1;
     });
 
@@ -89,6 +90,7 @@ router.get('/estadisticas', async (req, res) => {
     res.status(500).json({ msj: 'Error al calcular estadísticas', error: error.message });
   }
 });
+
 /* ─────────────────────────────────────────────
    GET /inscripciones/:id
    Devuelve una inscripción por su _id.
@@ -107,7 +109,6 @@ router.get('/:id', async (req, res) => {
    POST /inscripciones
    Crea una nueva inscripción.
    Estado inicial: 'pendiente'
-   Valida que no se haya superado el cupo máximo.
 ───────────────────────────────────────────── */
 router.post('/', async (req, res) => {
   const { nombre, identificacion, correo, telefono, carrera, actividad, comentarios } = req.body;
@@ -119,7 +120,6 @@ router.post('/', async (req, res) => {
   try {
     const actividadLimpia = actividad.trim();
 
-    // Búsqueda dinámica en la colección de actividades de la BD (insensible a mayúsculas/minúsculas)
     const actInfo = await Actividad.findOne({
       nombre: { $regex: new RegExp(`^${actividadLimpia}$`, 'i') }
     });
@@ -128,7 +128,8 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ msj: 'La actividad seleccionada no es válida' });
     }
 
-    const inscritos  = await Inscripcion.countDocuments({ actividad: actInfo.nombre });
+    // Contamos solo las confirmadas para evaluar si se llenó el cupo máximo oficial
+    const inscritos  = await Inscripcion.countDocuments({ actividad: actInfo.nombre, estado: 'confirmada' });
     const estaLlena  = inscritos >= actInfo.cupoMax;
 
     const nueva = new Inscripcion({
@@ -137,7 +138,7 @@ router.post('/', async (req, res) => {
       correo: correo.toLowerCase(),
       telefono,
       carrera,
-      actividad: actInfo.nombre, // Usa el nombre oficial guardado en la BD
+      actividad: actInfo.nombre, 
       comentarios: comentarios || '',
       estado: 'pendiente'   
     });
@@ -161,7 +162,6 @@ router.post('/', async (req, res) => {
 /* ─────────────────────────────────────────────
    PUT /inscripciones/:id
    Actualiza una inscripción (admin).
-   Permite modificar todos los campos + estado.
 ───────────────────────────────────────────── */
 router.put('/:id', async (req, res) => {
   const { nombre, identificacion, correo, telefono, carrera, actividad, comentarios, estado } = req.body;

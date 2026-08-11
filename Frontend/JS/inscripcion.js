@@ -10,25 +10,17 @@
    CUPOS REALES según el enunciado
    (sincronizados con inscripcion.model.js)
 ============================================= */
-const CUPOS_ACTIVIDADES = {
-  'Hackathon de IA':            { max: 30,  actuales: 28  },
-  'Festival Gastronómico':      { max: 200, actuales: 120 },
-  'Exposición de Arte Digital': { max: 80,  actuales: 65  },
-  'Torneo de Fútbol 5':         { max: 60,  actuales: 60  },  // lista de espera
-  'Noche de Teatro':            { max: 120, actuales: 95  },
-  'Escape Room Tecnológico':    { max: 20,  actuales: 16  },
-  'Taller de Robótica':         { max: 25,  actuales: 20  },
-  'Jam de Música en Vivo':      { max: 150, actuales: 40  },
-  'Maratón de Danza':           { max: 50,  actuales: 35  }
-};
+
 
 /* Referencias a las instancias de Chart.js (para destruir antes de redibujar) */
 let _chartActividad = null;
 let _chartCupos     = null;
 let _chartSemanas   = null;
 
-/* Cache de inscripciones para filtrado sin re-fetch */
+
+/* Cache de inscripciones y de actividades (para no re-consultar al servidor innecesariamente) */
 let _inscripcionesCache = [];
+let _actividadesCache = []; 
 
 /* =============================================
    CALLBACKS DE SESIÓN — sobreescriben los de
@@ -77,9 +69,11 @@ async function poblarSelectInscripcion() {
 
   try {
     const res = await fetch(`${API_URL}/actividades`);
-    const actividades = await res.json();
+    const actividades = await res.json(); // Aquí llegan los datos reales (los 2 inscritos, etc.)
 
     if (!res.ok) return;
+
+    _actividadesCache = actividades; // <--- AQUÍ GUARDAMOS LOS DATOS REALES
 
     actividades.forEach(act => {
       const cupoMax = Number(act.cupoMax) || 0;
@@ -88,17 +82,16 @@ async function poblarSelectInscripcion() {
       const llena = cupoActual >= cupoMax || act.estado === 'llena';
 
       const opt = document.createElement('option');
-      opt.value = act.nombre; // Coincide con el enum de Mongoose
+      opt.value = act.nombre; 
       opt.textContent = llena
         ? `${act.nombre} (Lista de espera)`
         : `${act.nombre} — ${libres} cupos disponibles`;
       sel.appendChild(opt);
     });
 
-    // Event listener para actualizar alertas al cambiar de opción
+    // Event listener se mantiene igual
     sel.addEventListener('change', (e) => verificarCupoInscripcion(e.target.value));
 
-    // Preseleccionar si viene por URL
     const params = new URLSearchParams(window.location.search);
     const actUrl = params.get('actividad');
     if (actUrl) {
@@ -106,39 +99,50 @@ async function poblarSelectInscripcion() {
       verificarCupoInscripcion(actUrl);
     }
   } catch (error) {
-    console.error("Error al cargar actividades en el select", error);
+    console.error("Error al cargar actividades", error);
   }
 }
 
 /* =============================================
    ALERTA DINÁMICA DE CUPOS
 ============================================= */
+/* =============================================
+   ALERTA DINÁMICA DE CUPOS (Corregida)
+============================================= */
 function verificarCupoInscripcion(nombre) {
   const al = document.getElementById('alertaCupo');
   const tx = document.getElementById('alertaCupoTexto');
-  if (!al || !tx) return;
+  if (!al || !tx || !nombre) {
+    if (al) al.style.display = 'none';
+    return;
+  }
 
-  if (!nombre || !CUPOS_ACTIVIDADES[nombre]) {
+  // Buscamos la actividad en nuestro caché dinámico
+  const actividad = _actividadesCache.find(a => a.nombre === nombre);
+  
+  // Si no encontramos la actividad (o no hay caché aún), ocultamos la alerta
+  if (!actividad) {
     al.style.display = 'none';
     return;
   }
 
-  const { max, actuales } = CUPOS_ACTIVIDADES[nombre];
-  const libres = max - actuales;
-  const pct    = (actuales / max) * 100;
+  const max = Number(actividad.cupoMax) || 0;
+  const actuales = Number(actividad.cupoActual) || 0;
+  const libres = Math.max(0, max - actuales);
+  const pct = (actuales / max) * 100;
 
   if (libres <= 0) {
-    tx.textContent    = `"${nombre}" no tiene cupos disponibles. Tu inscripción quedará en lista de espera.`;
-    al.style.display  = 'flex';
-    al.style.background    = 'linear-gradient(135deg,#fff3cd,#ffeaa7)';
-    al.style.borderColor   = '#ffc63e';
-    al.style.color         = '#7a4800';
+    tx.textContent = `"${nombre}" no tiene cupos disponibles. Tu inscripción quedará en lista de espera.`;
+    al.style.display = 'flex';
+    al.style.background = 'linear-gradient(135deg,#fff3cd,#ffeaa7)';
+    al.style.borderColor = '#ffc63e';
+    al.style.color = '#7a4800';
   } else if (pct >= 80) {
-    tx.textContent    = `¡Solo quedan ${libres} cupos para "${nombre}"! Inscribite pronto.`;
-    al.style.display  = 'flex';
-    al.style.background    = 'linear-gradient(135deg,#d4edda,#c3e6cb)';
-    al.style.borderColor   = '#4aa147';
-    al.style.color         = '#1a5a1a';
+    tx.textContent = `¡Solo quedan ${libres} cupos para "${nombre}"! Inscribite pronto.`;
+    al.style.display = 'flex';
+    al.style.background = 'linear-gradient(135deg,#d4edda,#c3e6cb)';
+    al.style.borderColor = '#4aa147';
+    al.style.color = '#1a5a1a';
   } else {
     al.style.display = 'none';
   }
@@ -386,14 +390,17 @@ async function confirmarInscripcion(id, nombre) {
       return;
     }
 
-    await cargarPanelAdmin();
+    // --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
+    await cargarPanelAdmin();       // Recarga la tabla y estadísticas
+    await poblarSelectInscripcion(); // Vuelve a pedir las actividades al servidor para actualizar los cupos
+    // ---------------------------------
+
     Swal.fire({ icon: 'success', title: '¡Inscripción confirmada!', timer: 2000 });
 
   } catch {
     Swal.fire({ icon: 'error', title: 'Sin conexión', confirmButtonColor: '#006AEA' });
   }
 }
-
 function aplicarFiltrosTabla() {
   const q         = document.getElementById('buscarInscripcion')?.value.toLowerCase() || '';
   const actividad = document.getElementById('filtroActividad')?.value || '';
@@ -421,8 +428,12 @@ async function eliminarInscripcion(id, nombre) {
     const res = await fetch(`${API_URL}/inscripciones/${id}`, { method: 'DELETE' });
     if (!res.ok) return;
 
+    // --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
+    await cargarPanelAdmin();
+    await poblarSelectInscripcion(); // Actualiza los cupos disponibles tras liberar el espacio
+    // ---------------------------------
+
     Swal.fire({ icon: 'success', title: 'Inscripción eliminada', timer: 2000 });
-    cargarPanelAdmin();
   } catch {
     Swal.fire({ icon: 'error', title: 'Sin conexión' });
   }
@@ -435,7 +446,13 @@ function abrirModalEditarInscripcion(id, nombre, identificacion, correo, telefon
 
   if (titulo) titulo.innerHTML = '<i class="fa-solid fa-pen"></i> Editar Inscripción';
 
-  const opActividades = Object.keys(CUPOS_ACTIVIDADES)
+  // Usamos _actividadesCache si ya está cargado, de lo contrario extraemos las actividades únicas del caché de inscripciones
+  let listaNombresActividades = _actividadesCache.map(a => a.nombre);
+  if (listaNombresActividades.length === 0) {
+    listaNombresActividades = [...new Set(_inscripcionesCache.map(i => i.actividad))];
+  }
+
+  const opActividades = listaNombresActividades
     .map(a => `<option value="${a}" ${a === actividad ? 'selected' : ''}>${a}</option>`)
     .join('');
 
@@ -515,8 +532,13 @@ async function guardarEdicionInscripcion(id) {
     if (!res.ok) return;
 
     bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAdmin')).hide();
+    
+    // --- AQUÍ ESTÁ EL CAMBIO CLAVE ---
+    await cargarPanelAdmin();
+    await poblarSelectInscripcion(); // Refresca los cupos en memoria/interfaz
+    // ---------------------------------
+
     Swal.fire({ icon: 'success', title: 'Inscripción actualizada', timer: 2000 });
-    cargarPanelAdmin();
 
   } catch {
     Swal.fire({ icon: 'error', title: 'Sin conexión' });
